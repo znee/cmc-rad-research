@@ -190,6 +190,7 @@ dialog .acts { display: flex; justify-content: flex-end; gap: 8px; margin-top: 1
 }
 @media (max-width: 560px) {
   h1 { font-size: 22px; }
+  .filters { position: static; }   /* 휴대폰에서는 고정하지 않는다(화면의 40%를 가림) */
   .filters select { flex: 1 1 45%; }
   .seg button { padding: 6px 10px; font-size: 14.5px; }
   .links { margin-left: 0; width: 100%; }
@@ -240,6 +241,7 @@ dialog .acts { display: flex; justify-content: flex-end; gap: 8px; margin-top: 1
 .net .lbl { fill: var(--ink2); pointer-events: none; paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; font-weight: 500; }
 .net .lbl.hot { fill: var(--ink); font-weight: 600; }
 .net .lbl.me { fill: var(--ink); font-weight: 750; stroke-width: 5px; }
+.net .ldr { stroke: var(--muted); stroke-width: 1; opacity: .7; pointer-events: none; }
 .net .elbl { font-size: 12.5px; font-weight: 700; fill: var(--ink); paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; pointer-events: none; }
 .net .ln.one { opacity: .28; }
 .net.focus .ln { opacity: .08; } .net.focus .ln.hot { opacity: 1; stroke: var(--ink2); }
@@ -249,6 +251,7 @@ dialog .acts { display: flex; justify-content: flex-end; gap: 8px; margin-top: 1
 .netstage { position: relative; }
 .netinfo { position: absolute; left: 8px; bottom: 8px; max-width: min(420px, calc(100% - 16px)); background: var(--surface); border: 1px solid var(--ring); border-radius: 8px; padding: 7px 11px; font-size: 14px; color: var(--ink2); box-shadow: 0 2px 10px rgba(0,0,0,.08); pointer-events: none; }
 .netinfo b { color: var(--ink); font-weight: 700; }
+.netinfo.top { top: 8px; bottom: auto; }
 .card.netfull { position: fixed; inset: 0; z-index: 40; margin: 0; border-radius: 0; overflow: auto; }
 .card.netfull .net svg { touch-action: none; }
 body.noscroll { overflow: hidden; }
@@ -475,7 +478,7 @@ dialog#prof { overflow-x: hidden; }
   $("foot").innerHTML = `주저자 = 제1저자(공동 제1저자 포함) 또는 교신저자. 저자 목록(byline)에 이름이 있는 논문만 셉니다(컨소시엄·공동연구자 명단 제외).<br>
     규칙으로 확실하게 확인됐거나 관리자가 확인한 논문만 게시합니다${D.meta.pending ? ` (확인 중 ${D.meta.pending}건은 아직 미게시)` : ""}. 정오표·철회·프리프린트는 제외합니다.<br>
     출처: PubMed · OpenAlex · ORCID. 빠진 논문이나 잘못된 내용은 '의견 보내기'나 각 논문의 '오류 신고'로 관리자에게 알려 주세요.<br>
-    교실원 이름을 누르면 프로필(연도별 실적·함께 쓴 교실원·업적표 인쇄)이 열립니다. · 대시보드 v0.2.2`;
+    교실원 이름을 누르면 프로필(연도별 실적·함께 쓴 교실원·업적표 인쇄)이 열립니다. · 대시보드 v0.2.3`;
 
   // ---------- 필터
   function segment(el, items, key) {
@@ -894,6 +897,9 @@ dialog#prof { overflow-x: hidden; }
         info.innerHTML = `<b>${esc(names[id])}</b> · ${esc(m.hosp || "병원 미상")} · 논문 ${cnt[id]}편 · 함께 쓴 교실원 ${nbs.length}명` +
           (nbs.length ? `<br>많이 함께: ${nbs.slice(0, 4).map(([o, v]) => `${esc(names[o])} ${v}편`).join(", ")}` : ""); }
       else info.innerHTML = `<b>${F.map(id => esc(names[id])).join(" · ")}</b> · 함께 쓴 논문 ${pairV(F[0], F[1])}편`;
+      // 초점이 아래쪽이면 정보 상자를 위로 올린다(초점 주변을 가리지 않게)
+      const fy = F.filter(id => P[id]).reduce((s, id) => s + P[id].y * NET.view.k + NET.view.ty, 0) / Math.max(1, F.filter(id => P[id]).length);
+      info.classList.toggle("top", fy > H * 0.55);
       info.hidden = false;
     }
     let hover = "", raf = 0, dragId = "";
@@ -946,25 +952,32 @@ dialog#prof { overflow-x: hidden; }
       const cmap = Object.fromEntries(circ.map(c => [c.id, c]));
       const order = ids.slice().sort((a, b) => (F.includes(b) - F.includes(a)) || (keep.has(b) - keep.has(a)) || ((nbw[b] || 0) - (nbw[a] || 0)) || (cnt[b] - cnt[a]));
       const placed = [], out = [], fm = F.length > 0;
+      if (!info.hidden) { const sr = svg.getBoundingClientRect(), ir = info.getBoundingClientRect(), sx = W / (sr.width || W), sy = H / (sr.height || H);   // 정보 상자 밑에는 이름표를 놓지 않는다
+        placed.push({ x0: (ir.left - sr.left) * sx - 4, y0: (ir.top - sr.top) * sy - 4, x1: (ir.right - sr.left) * sx + 4, y1: (ir.bottom - sr.top) * sy + 4 }); }
       for (const id of order) {
         if (fm && !keep.has(id)) continue;
         const me = F.includes(id), size = me ? 17 : fm ? 14 : 13, t = names[id];
-        const w = measure(t, size) * (me ? 1.1 : fm ? 1.05 : 1.02) + 6, h = size + 5, c = cmap[id], r = c.r + 2, q = r * 0.72;
-        const cands = [[c.x + r, c.y - h / 2], [c.x - r - w, c.y - h / 2], [c.x - w / 2, c.y - r - h], [c.x - w / 2, c.y + r],
-          [c.x + q, c.y - q - h], [c.x - q - w, c.y - q - h], [c.x + q, c.y + q], [c.x - q - w, c.y + q]];
-        let pick = null;
-        const nd = P[id], tryOrder = nd.lp != null ? [nd.lp, ...cands.keys()] : [...cands.keys()];   // 지난번 자리부터(이름표가 깜빡이지 않게)
+        const w = measure(t, size) * (me ? 1.1 : fm ? 1.05 : 1.02) + 6, h = size + 5, c = cmap[id];
+        const ring = r => { const q = r * 0.72; return [[c.x + r, c.y - h / 2], [c.x - r - w, c.y - h / 2], [c.x - w / 2, c.y - r - h], [c.x - w / 2, c.y + r],
+          [c.x + q, c.y - q - h], [c.x - q - w, c.y - q - h], [c.x + q, c.y + q], [c.x - q - w, c.y + q]]; };
+        // 초점의 이웃은 바로 옆에 자리가 없으면 한두 칸 떨어진 자리에 놓고 가는 선으로 잇는다(좁은 화면에서 가장 가까운 공저자 이름이 빠지지 않게)
+        const cands = fm && !me ? [...ring(c.r + 2), ...ring(c.r + 18), ...ring(c.r + 34)] : ring(c.r + 2);
+        let pick = null, far = false;
+        const nd = P[id], tryOrder = nd.lp != null && nd.lp < cands.length ? [nd.lp, ...cands.keys()] : [...cands.keys()];   // 지난번 자리부터(이름표가 깜빡이지 않게)
         for (const ci of tryOrder) {
-          const [x0, y0] = cands[ci];
+          // 가장자리에서는 이름표를 안쪽으로 조금 밀어 넣는다(많이 밀려야 하면 그 자리는 버림). 밀린 이름표가 자기 점을 덮지 않게 자기 점도 피한다.
+          const [cx0, cy0] = cands[ci], x0 = Math.min(W - w - 2, Math.max(2, cx0)), y0 = Math.min(H - h - 2, Math.max(2, cy0));
+          if (Math.abs(x0 - cx0) > w * 0.6 || Math.abs(y0 - cy0) > h * 0.6) continue;
           const bx = { x0, y0, x1: x0 + w, y1: y0 + h };
-          if (bx.x0 < 2 || bx.y0 < 2 || bx.x1 > W - 2 || bx.y1 > H - 2) continue;
           if (placed.some(p => hitRR(bx, p))) continue;
-          if (circ.some(o => o.id !== id && (!fm || keep.has(o.id)) && hitRC(bx, o))) continue;
-          pick = bx; nd.lp = ci; break;
+          if (circ.some(o => (!fm || keep.has(o.id) || o.id === id) && hitRC(bx, o))) continue;
+          pick = bx; nd.lp = ci; far = ci >= 8; break;
         }
         if (!pick && me) { const x0 = Math.min(W - w - 2, Math.max(2, cands[0][0])), y0 = Math.min(H - h - 2, Math.max(2, cands[0][1])); pick = { x0, y0, x1: x0 + w, y1: y0 + h }; }
         if (!pick) continue;
         placed.push(pick);
+        if (far) { const ex = Math.max(pick.x0, Math.min(c.x, pick.x1)), ey = Math.max(pick.y0, Math.min(c.y, pick.y1)), dl = Math.hypot(ex - c.x, ey - c.y) || 1;
+          out.push(`<line class="ldr" x1="${(c.x + (ex - c.x) * c.r / dl).toFixed(1)}" y1="${(c.y + (ey - c.y) * c.r / dl).toFixed(1)}" x2="${ex.toFixed(1)}" y2="${ey.toFixed(1)}"/>`); }
         out.push(`<text class="lbl${me ? " me" : fm ? " hot" : ""}" x="${(pick.x0 + 3).toFixed(1)}" y="${(pick.y0 + 2 + size * 0.86).toFixed(1)}" font-size="${size}">${esc(t)}</text>`);
       }
       layL.innerHTML = out.join("");
