@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
+<meta name="feedback-key" content="f9e8222d-e9c8-4ecf-8ea0-0a7915d51bac">
 <meta name="robots" content="noindex, nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>교실 연구 업적</title>
@@ -470,7 +471,9 @@ dialog#prof { overflow-x: hidden; }
   const ROLE_NOUN = { main: "주저자", first: "제1저자", corr: "교신저자", co: "공저자", "": "전체" };
   const st = { role: "main", year: "", member: "", hosp: "", kind: "", text: "", shown: 40 };
   const tview = {};
-  let server = false;
+  let server = false;   // 교실 내부망 서버(/api/report)가 있으면 그쪽으로 보낸다
+  const FEEDBACK_KEY = document.querySelector('meta[name="feedback-key"]')?.content || "";   // 게시본: Web3Forms가 관리자 메일로 보낸다(메일 주소는 화면에 없음)
+  const canSend = () => server || !!FEEDBACK_KEY;
 
   document.title = D.meta.title;
   $("title").textContent = D.meta.title;
@@ -478,7 +481,7 @@ dialog#prof { overflow-x: hidden; }
   $("foot").innerHTML = `주저자 = 제1저자(공동 제1저자 포함) 또는 교신저자. 저자 목록(byline)에 이름이 있는 논문만 셉니다(컨소시엄·공동연구자 명단 제외).<br>
     규칙으로 확실하게 확인됐거나 관리자가 확인한 논문만 게시합니다${D.meta.pending ? ` (확인 중 ${D.meta.pending}건은 아직 미게시)` : ""}. 정오표·철회·프리프린트는 제외합니다.<br>
     출처: PubMed · OpenAlex · ORCID. 빠진 논문이나 잘못된 내용은 '의견 보내기'나 각 논문의 '오류 신고'로 관리자에게 알려 주세요.<br>
-    교실원 이름을 누르면 프로필(연도별 실적·함께 쓴 교실원·업적표 인쇄)이 열립니다. · 대시보드 v0.2.3`;
+    교실원 이름을 누르면 프로필(연도별 실적·함께 쓴 교실원·업적표 인쇄)이 열립니다. · 대시보드 v0.2.4`;
 
   // ---------- 필터
   function segment(el, items, key) {
@@ -1219,7 +1222,7 @@ dialog#prof { overflow-x: hidden; }
     $("dlgMember").innerHTML = (p ? "" : `<option value="">선택 (해당 없으면 비워 두세요)</option>`) + opts.map(id => `<option value="${esc(id)}">${esc(memberById[id]?.name || id)}</option>`).join("");
     if (!p && st.member) $("dlgMember").value = st.member;
     $("dlgDetail").value = ""; $("dlgRef").value = "";
-    $("dlgNote").hidden = server; $("dlgSend").disabled = !server;
+    $("dlgNote").hidden = canSend(); $("dlgSend").disabled = !canSend();
     $("dlg").showModal();
   }
   $("list").onclick = e => { const b = e.target.closest("button.report"); if (b) openDialog(D.papers.find(p => p.k === b.dataset.k)); };
@@ -1235,16 +1238,28 @@ dialog#prof { overflow-x: hidden; }
       pmid: p ? p.pmid : "", doi: p ? p.doi : "", detail: $("dlgDetail").value, reporter: $("dlgWho").value, contact: $("dlgContact").value };
     $("dlgSend").disabled = true;
     try {
-      const r = await fetch("/api/report", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-      const j = await r.json().catch(() => ({}));
-      if (!r.ok || !j.ok) throw new Error(j.error || r.status);
+      if (server) {   // 교실 내부망: 이 Mac의 검토 화면 '의견' 탭으로
+        const r = await fetch("/api/report", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok || !j.ok) throw new Error(j.error || r.status);
+      } else {        // 게시본: 관리자 메일로 (한글 항목 이름이 깨지지 않게 JSON으로 보낸다)
+        const nm = id => memberById[id]?.name || id, ref = body.doi ? `https://doi.org/${body.doi}` : body.pmid ? `https://pubmed.ncbi.nlm.nih.gov/${body.pmid}/` : "";
+        const mail = { access_key: FEEDBACK_KEY, subject: `[연구업적 의견] ${kind}${body.member ? " · " + nm(body.member) : ""}`, from_name: body.reporter || "연구업적 대시보드",
+          "종류": kind, "교실원": body.member ? (nm(body.member) === body.member ? body.member : `${nm(body.member)} (${body.member})`) : "", [p ? "논문" : "논문 (DOI·PMID·제목)"]: body.title, "링크": ref,
+          "내용": body.detail, "보낸 사람": body.reporter, "연락처": body.contact, "논문 key": body.key };
+        if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(body.contact.trim())) mail.replyto = body.contact.trim();
+        Object.keys(mail).forEach(k => { if (mail[k] === "" || mail[k] == null) delete mail[k]; });
+        const r = await fetch("https://api.web3forms.com/submit", { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(mail) });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok || !j.success) throw new Error(j.message || j.body?.message || r.status);
+      }
       $("dlg").close(); toast("관리자에게 전달했습니다. 감사합니다.");
     } catch (err) { toast("보내지 못했습니다: " + err.message); }
-    finally { $("dlgSend").disabled = !server; }
+    finally { $("dlgSend").disabled = !canSend(); }
   });
   function toast(msg) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("show"), 2800); }
 
-  fetch("/api/ping").then(r => r.ok && r.json()).then(j => { server = !!(j && j.ok); }).catch(() => { server = false; });
+  if (location.protocol === "http:") fetch("/api/ping").then(r => r.ok && r.json()).then(j => { server = !!(j && j.ok); }).catch(() => { server = false; });
   let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(render, 150); });
   render();
   const hm = location.hash.match(/^#m=(.+)$/);
