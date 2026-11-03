@@ -1,6 +1,1003 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex, nofollow"><title>교실 연구 업적</title>
-<style>body{margin:0;min-height:100vh;display:grid;place-items:center;font:16px/1.6 system-ui,sans-serif;background:#fafafa;color:#333}
-@media (prefers-color-scheme:dark){body{background:#151515;color:#ddd}}</style></head>
-<body><p>연구 업적 대시보드를 준비하고 있습니다.</p></body></html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>교실 연구 업적</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10); --wash: #f0efec;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100;
+  --on-s1: #fff; --on-s2: #fff; --on-s3: #fff; --on-s4: #0b0b0b;
+  --main: #1c5cab; --co: #86b6ef; --other: #c3c2b7;
+  --accent: #2a78d6; --accent-soft: #e6effa; --mark: #fff3c4; --good-text: #006300; --critical: #d03b3b;
+  --y0: #86b6ef; --y1: #3987e5; --y2: #1c5cab;
+  --h1: #cde2fb; --h2: #9ec5f4; --h3: #5598e7; --h4: #256abf; --h5: #104281;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10); --wash: #232322;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+    --on-s1: #fff; --on-s2: #fff; --on-s3: #fff; --on-s4: #fff;
+    --main: #9ec5f4; --co: #256abf; --other: #5f5e59;
+    --accent: #3987e5; --accent-soft: #1d2a3a; --mark: #4a3f17; --good-text: #0ca30c; --critical: #e66767;
+    --y0: #184f95; --y1: #3987e5; --y2: #9ec5f4;
+    --h1: #104281; --h2: #1c5cab; --h3: #3987e5; --h4: #86b6ef; --h5: #cde2fb;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink2: #c3c2b7; --muted: #898781;
+  --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10); --wash: #232322;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+  --on-s1: #fff; --on-s2: #fff; --on-s3: #fff; --on-s4: #fff;
+  --main: #9ec5f4; --co: #256abf; --other: #5f5e59;
+  --accent: #3987e5; --accent-soft: #1d2a3a; --mark: #4a3f17; --good-text: #0ca30c; --critical: #e66767;
+  --y0: #184f95; --y1: #3987e5; --y2: #9ec5f4;
+  --h1: #104281; --h2: #1c5cab; --h3: #3987e5; --h4: #86b6ef; --h5: #cde2fb;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { background: var(--page); }
+body { margin: 0; background: var(--page); color: var(--ink);
+  font: 16.5px/1.6 system-ui, -apple-system, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", "Segoe UI", sans-serif; }
+.wrap { max-width: 1240px; margin: 0 auto; padding: 28px 16px 72px; }
+header { display: flex; gap: 16px; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; }
+h1 { font-size: 27px; margin: 0 0 6px; letter-spacing: -0.01em; }
+.sub { color: var(--ink2); font-size: 15px; overflow-wrap: anywhere; }
+button, select, input, textarea { font: inherit; color: inherit; }
+.btn { border: 1px solid var(--ring); background: var(--surface); border-radius: 9px; padding: 8px 15px; cursor: pointer; font-size: 15.5px; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+.btn.small { padding: 5px 12px; font-size: 14.5px; }
+
+/* 필터: 맨 위 한 묶음, 아래 전부에 적용 */
+.filters { position: sticky; top: 0; z-index: 5; background: var(--page); padding: 12px 0; margin-top: 16px; display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid var(--grid); }
+.frow { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--ring); border-radius: 10px; background: var(--surface); padding: 3px; gap: 2px; }
+.seg button { border: none; background: none; border-radius: 8px; padding: 7px 14px; cursor: pointer; font-size: 15.5px; color: var(--ink2); }
+.seg button:hover { background: var(--wash); }
+.seg button.on { background: var(--ink); color: var(--surface); font-weight: 600; }
+.seg.role button.on { background: var(--accent); color: #fff; }
+.flabel { font-size: 14px; color: var(--muted); }
+.filters select, .filters input { border: 1px solid var(--ring); background: var(--surface); border-radius: 9px; padding: 8px 10px; font-size: 15px; max-width: 100%; }
+.filters input { flex: 1; min-width: 170px; }
+
+/* KPI */
+.kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin: 18px 0; }
+.kpi { background: var(--surface); border: 1px solid var(--ring); border-radius: 12px; padding: 14px 16px; }
+.kpi .l { color: var(--ink2); font-size: 15px; }
+.kpi .v { font-size: 36px; font-weight: 650; line-height: 1.2; margin: 2px 0; }
+.kpi .d { color: var(--muted); font-size: 13.5px; }
+.kpi.lead { border-color: var(--accent); }
+
+/* 카드 */
+.grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; margin-bottom: 14px; }
+.card { background: var(--surface); border: 1px solid var(--ring); border-radius: 12px; padding: 16px 18px 18px; min-width: 0; }
+.card.full { margin-bottom: 14px; }
+.chead { display: flex; gap: 10px; align-items: baseline; margin-bottom: 12px; flex-wrap: wrap; }
+.chead h2 { font-size: 18.5px; margin: 0; }
+.chead .cs { color: var(--muted); font-size: 14px; }
+.chead .tv { margin-left: auto; border: none; background: none; color: var(--ink2); font-size: 14px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 14.5px; color: var(--ink2); margin-bottom: 10px; }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 2px; margin-right: 7px; vertical-align: -1px; }
+.empty { color: var(--muted); text-align: center; padding: 30px 0; font-size: 15px; }
+
+/* 연도별 세로 막대 */
+.cols { position: relative; height: 270px; margin-left: 36px; }
+.cols .gl { position: absolute; left: 0; right: 0; height: 1px; background: var(--grid); }
+.cols .gl.base { background: var(--axis); }
+.cols .gt { position: absolute; left: -36px; width: 28px; text-align: right; font-size: 13px; color: var(--muted); transform: translateY(50%); font-variant-numeric: tabular-nums; }
+.cols .slots { position: absolute; left: 0; right: 0; top: 0; bottom: 30px; display: flex; }
+.cols .slot { flex: 1; position: relative; cursor: default; outline: none; }
+.cols .slot:hover, .cols .slot:focus-visible { background: var(--wash); border-radius: 6px; }
+.cols .bseg { position: absolute; left: 50%; width: 24px; margin-left: -12px; }
+.cols .bseg.top { border-radius: 4px 4px 0 0; }
+.cols .cap { position: absolute; left: 0; right: 0; text-align: center; font-size: 15px; font-weight: 650; }
+.cols .xl { position: absolute; left: 0; right: 0; bottom: -28px; text-align: center; font-size: 15px; color: var(--ink2); }
+.cols .slot.dim .bseg { opacity: .35; }
+.cols .slot.sel .xl { color: var(--ink); font-weight: 700; }
+
+/* 가로 순위 막대 */
+.hbars { display: flex; flex-direction: column; gap: 3px; }
+.hrow { display: grid; grid-template-columns: minmax(110px, 38%) minmax(0, 1fr); align-items: center; gap: 12px; padding: 4px 5px; border-radius: 6px; outline: none; }
+.hrow:hover, .hrow:focus-visible { background: var(--wash); }
+.hrow .hl { font-size: 15px; color: var(--ink2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hrow .ht { position: relative; height: 20px; }
+.hrow .hb { position: absolute; left: 0; top: 2px; height: 16px; background: var(--s1); border-radius: 0 4px 4px 0; }
+.hrow .hv { position: absolute; top: -1px; font-size: 15px; font-weight: 650; white-space: nowrap; }
+
+/* 유형: 큰 분할 막대 */
+.tall { display: flex; gap: 2px; height: 28px; margin: 6px 0 12px; }
+.tall .blk { border-radius: 4px; display: flex; align-items: center; padding-left: 9px; font-size: 14px; font-weight: 650; min-width: 0; outline: none; }
+.tall .blk:hover, .tall .blk:focus-visible { filter: brightness(1.08); }
+
+/* 교실원 표 */
+.tablebox { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 15.5px; }
+th, td { padding: 10px 12px; border-bottom: 1px solid var(--grid); text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+th { color: var(--muted); font-weight: 500; font-size: 14px; }
+th.l, td.l { text-align: left; }
+th.hi, td.hi { font-weight: 700; }
+tbody tr:last-child td { border-bottom: none; }
+#mTable tbody tr { cursor: pointer; }
+#mTable tbody tr:hover { background: var(--wash); }
+#mTable tbody tr.sel { background: var(--accent-soft); }
+td .en { color: var(--muted); font-size: 13.5px; margin-left: 7px; }
+td.bar { width: 22%; min-width: 130px; }
+.thin { display: flex; gap: 2px; height: 10px; outline: none; }
+.thin span { height: 10px; }
+.thin span:first-child { border-radius: 5px 0 0 5px; }
+.thin span:last-child { border-radius: 0 5px 5px 0; }
+.thin span:only-child { border-radius: 5px; }
+.zero { color: var(--axis); }
+
+/* 논문 목록 */
+.listhead { display: flex; align-items: baseline; gap: 12px; margin: 26px 0 12px; flex-wrap: wrap; }
+.listhead h2 { font-size: 20px; margin: 0; }
+.listhead .cs { color: var(--muted); font-size: 15px; }
+.listhead .btn { margin-left: auto; }
+.list { display: flex; flex-direction: column; gap: 10px; }
+.paper { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 14px 16px; }
+.paper .top { display: flex; gap: 8px; color: var(--muted); font-size: 14px; align-items: center; flex-wrap: wrap; }
+.paper .t { font-weight: 650; font-size: 17px; margin: 4px 0; overflow-wrap: anywhere; line-height: 1.45; }
+.paper .t a { color: inherit; text-decoration: none; }
+.paper .t a:hover { text-decoration: underline; }
+.paper .au { color: var(--ink2); font-size: 15px; overflow-wrap: anywhere; }
+.paper .au b { color: var(--ink); background: var(--mark); border-radius: 3px; padding: 0 3px; font-weight: 650; }
+.paper .bottom { display: flex; gap: 7px; margin-top: 10px; flex-wrap: wrap; align-items: center; }
+.tag { font-size: 14px; border-radius: 6px; padding: 2px 9px; background: var(--accent-soft); color: var(--ink); }
+.tag.main { font-weight: 650; }
+.tag.kind { background: transparent; border: 1px solid var(--ring); color: var(--ink2); }
+.tag.new { background: transparent; border: 1px solid var(--good-text); color: var(--good-text); }
+.links { margin-left: auto; display: flex; gap: 14px; font-size: 14.5px; }
+.links a, .links button { color: var(--accent); background: none; border: none; padding: 0; cursor: pointer; text-decoration: none; font-size: 14.5px; }
+.links button.report { color: var(--ink2); text-decoration: underline; text-underline-offset: 3px; }
+.more { text-align: center; margin: 16px 0; }
+footer { margin-top: 40px; color: var(--muted); font-size: 14px; line-height: 1.75; }
+
+/* 툴팁 */
+#tip { position: fixed; z-index: 30; pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--ring); border-radius: 8px; padding: 8px 12px; font-size: 14.5px; box-shadow: 0 4px 16px rgba(0,0,0,.12); max-width: 300px; }
+#tip .tv { font-weight: 700; font-size: 17px; }
+#tip .tl { color: var(--ink2); display: flex; align-items: center; gap: 7px; }
+#tip .tl s { display: inline-block; width: 14px; height: 2px; border-radius: 1px; text-decoration: none; }
+
+/* 의견 보내기 */
+dialog { border: 1px solid var(--ring); border-radius: 12px; background: var(--surface); color: var(--ink); width: min(580px, calc(100vw - 32px)); padding: 22px; font-size: 15.5px; }
+dialog::backdrop { background: rgba(0,0,0,.4); }
+dialog h3 { margin: 0 0 6px; font-size: 19px; }
+dialog .ptitle { color: var(--ink2); font-size: 15px; margin-bottom: 10px; overflow-wrap: anywhere; }
+dialog label { display: block; font-size: 15px; margin: 12px 0 5px; color: var(--ink2); }
+dialog .radios { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+dialog .radios label { display: flex; gap: 7px; align-items: center; color: var(--ink); margin: 3px 0; }
+dialog textarea, dialog input[type=text], dialog select { width: 100%; border: 1px solid var(--ring); border-radius: 8px; padding: 9px 11px; background: var(--page); font-size: 15.5px; }
+dialog textarea { min-height: 100px; resize: vertical; }
+dialog .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+dialog .acts { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+.note { font-size: 14px; color: var(--critical); margin-top: 10px; }
+.priv { font-size: 14px; color: var(--muted); margin-top: 8px; }
+.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--surface); padding: 10px 18px; border-radius: 8px; font-size: 15px; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 40; max-width: calc(100vw - 32px); }
+.toast.show { opacity: 1; }
+@media (max-width: 900px) {
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid2 { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 560px) {
+  h1 { font-size: 22px; }
+  .filters select { flex: 1 1 45%; }
+  .seg button { padding: 6px 10px; font-size: 14.5px; }
+  .links { margin-left: 0; width: 100%; }
+  dialog .row2 { grid-template-columns: 1fr; }
+  .kpi .v { font-size: 30px; }
+}
+@media print { .filters, .links, #btnFeedback, .tv { display: none !important; } }
+/* ---------- v0.2 ---------- */
+/* 선그래프 */
+.lc svg { display: block; width: 100%; overflow: visible; }
+.lc .gridl { stroke: var(--grid); stroke-width: 1; }
+.lc .gridl.base { stroke: var(--axis); }
+.lc .tick { fill: var(--muted); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.lc .ser { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.lc .endl { fill: var(--ink2); font-size: 13px; }
+.lc .cross { stroke: var(--axis); stroke-width: 1; }
+.lc .dot { stroke: var(--surface); stroke-width: 2; }
+.lc .hit { cursor: crosshair; outline: none; }
+.legend s { display: inline-block; width: 14px; height: 2px; border-radius: 1px; margin-right: 7px; vertical-align: middle; text-decoration: none; }
+.yoy { font-size: 15px; color: var(--ink2); margin: -4px 0 10px; }
+.yoy b { color: var(--ink); }
+.delta-up { color: var(--good-text); font-weight: 650; } .delta-down { color: var(--critical); font-weight: 650; }
+/* 비교 대상 고르기 */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; align-items: center; }
+.chip { border: 1px solid var(--ring); background: var(--surface); border-radius: 999px; padding: 3px 11px; font-size: 14px; cursor: pointer; color: var(--ink2); }
+.chip:hover { border-color: var(--ink2); }
+.chip.on { border-color: var(--ink2); color: var(--ink); font-weight: 600; }
+.chip i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+.chips select { border: 1px solid var(--ring); background: var(--surface); border-radius: 999px; padding: 3px 9px; font-size: 14px; }
+.chips .sep { width: 1px; height: 20px; background: var(--grid); margin: 0 4px; }
+/* 네트워크 */
+.grid21 { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 14px; margin-bottom: 14px; }
+.net svg { display: block; width: 100%; }
+.net .ln { stroke: var(--axis); stroke-linecap: round; }
+.net g.n { cursor: pointer; outline: none; }
+.net .nd { stroke: var(--surface); stroke-width: 2; }
+.net .lbl { fill: var(--ink2); font-size: 12px; pointer-events: none; paint-order: stroke; stroke: var(--surface); stroke-width: 3px; stroke-linejoin: round; display: none; }
+.net .lbl.top { display: block; }
+.net.focus .ln { opacity: .1; } .net.focus .ln.hot { opacity: 1; stroke: var(--ink2); }
+.net.focus g.n { opacity: .22; } .net.focus g.n.hot { opacity: 1; }
+.net.focus .lbl { opacity: .25; } .net.focus .lbl.hot { display: block; opacity: 1; fill: var(--ink); }
+.net g.n:focus-visible .nd { stroke: var(--ink); }
+.cs label, label.cs { cursor: pointer; }
+/* 병원 간 행렬 */
+.mx { display: grid; gap: 2px; font-size: 12.5px; align-items: center; }
+.mx .c { aspect-ratio: 1; border-radius: 3px; outline: none; min-width: 0; }
+.mx .c:hover, .mx .c:focus-visible { box-shadow: 0 0 0 2px var(--ink2); }
+.mx .h { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
+.mx .h.r { text-align: right; padding-right: 4px; }
+.mx .h.v { writing-mode: vertical-rl; justify-self: center; align-self: end; padding-bottom: 3px; letter-spacing: .02em; max-height: 64px; }
+.scale { display: flex; gap: 3px; align-items: center; font-size: 12.5px; color: var(--muted); margin-top: 10px; flex-wrap: wrap; }
+.scale i { width: 20px; height: 10px; border-radius: 2px; display: inline-block; }
+/* 최근 논문 */
+.feed { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px 22px; }
+.feed .fi { border-left: 3px solid var(--grid); padding: 1px 0 1px 11px; min-width: 0; }
+.feed .fd { color: var(--muted); font-size: 13.5px; }
+.feed .ft { font-weight: 600; font-size: 15px; overflow-wrap: anywhere; line-height: 1.4; margin: 1px 0 3px; }
+.feed .ft a { color: inherit; text-decoration: none; } .feed .ft a:hover { text-decoration: underline; }
+/* 교실원 이름 = 프로필 열기 */
+.mname { border: none; background: none; padding: 0; font: inherit; color: var(--ink); cursor: pointer; text-decoration: underline; text-decoration-color: var(--axis); text-underline-offset: 3px; }
+.mname:hover { color: var(--accent); text-decoration-color: var(--accent); }
+button.tag { border: none; cursor: pointer; font-family: inherit; }
+button.tag:hover { box-shadow: 0 0 0 1px var(--accent); }
+/* 프로필 */
+dialog#prof { width: min(1000px, calc(100vw - 20px)); max-height: calc(100vh - 28px); padding: 0; }
+#prof .ph { position: sticky; top: 0; background: var(--surface); padding: 18px 22px 12px; border-bottom: 1px solid var(--grid); display: flex; gap: 12px; align-items: flex-start; z-index: 2; }
+#prof .ph h2 { margin: 0; font-size: 24px; }
+#prof .pmeta { color: var(--ink2); font-size: 14.5px; margin-top: 4px; display: flex; gap: 4px 12px; flex-wrap: wrap; align-items: center; }
+#prof .pmeta a { color: var(--accent); }
+#prof .acts2 { margin-left: auto; display: flex; gap: 8px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
+#prof .pb { padding: 16px 22px 22px; }
+#prof .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0 0 14px; }
+#prof .kpi .v { font-size: 30px; }
+#prof h3 { font-size: 16.5px; margin: 18px 0 8px; }
+#prof .grid2 { margin-bottom: 0; }
+.badge2 { font-size: 13px; border: 1px solid var(--ring); border-radius: 6px; padding: 1px 8px; color: var(--ink2); }
+.badge2.left { border-color: var(--critical); color: var(--critical); }
+#printArea { display: none; }
+@media (max-width: 640px) {
+  #prof .ph { flex-wrap: wrap; padding: 14px 16px 10px; }
+  #prof .acts2 { margin-left: 0; justify-content: flex-start; width: 100%; }
+  #prof .pb { padding: 14px 16px 18px; }
+  #prof .ph h2 { font-size: 21px; }
+}
+dialog#prof { overflow-x: hidden; }
+#prof .pb, #prof .ph > div:first-child { min-width: 0; }
+@media (max-width: 900px) {
+  .grid21 { grid-template-columns: minmax(0, 1fr); }
+  .feed { grid-template-columns: minmax(0, 1fr); }
+  #prof .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media print {
+  body.pp > *:not(#printArea) { display: none !important; }
+  body.pp #printArea { display: block; font-size: 12.5px; color: #000; }
+  #printArea h1 { font-size: 20px; margin: 0 0 4px; }
+  #printArea table { font-size: 12px; margin: 8px 0 14px; }
+  #printArea th, #printArea td { padding: 4px 6px; white-space: normal; text-align: left; vertical-align: top; }
+  #printArea table.sum { width: auto; }
+  #printArea .nw { white-space: nowrap; }
+  #printArea .num { text-align: right; }
+}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1 id="title">교실 연구 업적</h1>
+      <div class="sub" id="sub"></div>
+    </div>
+    <button class="btn primary" id="btnFeedback">의견 보내기 (누락·오류)</button>
+  </header>
+
+  <div class="filters" role="group" aria-label="필터">
+    <div class="frow">
+      <div class="seg role" id="roles" role="group" aria-label="저자 역할"></div>
+      <div class="seg" id="years" role="group" aria-label="연도"></div>
+    </div>
+    <div class="frow">
+      <select id="fMember" aria-label="교실원"><option value="">교실원 전체</option></select>
+      <select id="fHosp" aria-label="병원"><option value="">병원 전체</option></select>
+      <select id="fKind" aria-label="유형">
+        <option value="">유형 전체</option>
+        <option>학술지</option><option>학회논문</option><option>초록</option><option>도서</option>
+      </select>
+      <input id="fText" type="search" placeholder="제목·저널 검색" aria-label="검색">
+    </div>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <section class="card full">
+    <div class="chead"><h2>교실원별</h2><span class="cs" id="mNote"></span></div>
+    <div class="legend" id="mLegend"><span><i style="background:var(--main)"></i>주저자 (제1·교신)</span><span><i style="background:var(--co)"></i>공저자</span></div>
+    <div class="tablebox"><table id="mTable"><thead><tr id="mHead"></tr></thead><tbody id="mBody"></tbody></table></div>
+  </section>
+
+  <div class="grid2">
+    <section class="card">
+      <div class="chead"><h2>올해와 지난해</h2><span class="cs" id="paceNote"></span><button class="tv" data-for="pace">표로 보기</button></div>
+      <div class="yoy" id="yoy"></div>
+      <div class="legend" id="paceLegend"></div>
+      <div id="pace"></div>
+    </section>
+    <section class="card">
+      <div class="chead"><h2>누적 비교</h2><span class="cs" id="cmpNote"></span><button class="tv" data-for="cmp">표로 보기</button></div>
+      <div class="chips" id="cmpCtl"></div>
+      <div id="cmp"></div>
+    </section>
+  </div>
+
+  <section class="card full">
+    <div class="chead"><h2>최근 논문</h2><span class="cs" id="feedNote"></span></div>
+    <div class="feed" id="feed"></div>
+  </section>
+
+  <div class="grid2">
+    <section class="card">
+      <div class="chead"><h2>연도별 논문</h2><span class="cs" id="yearNote"></span><button class="tv" data-for="year">표로 보기</button></div>
+      <div class="legend"><span><i style="background:var(--s1)"></i>학술지</span><span><i style="background:var(--other)"></i>그 외 (학회논문·초록·도서)</span></div>
+      <div id="year"></div>
+    </section>
+    <section class="card">
+      <div class="chead"><h2>병원별 논문</h2><span class="cs" id="hospNote"></span><button class="tv" data-for="hosp">표로 보기</button></div>
+      <div id="hosp"></div>
+    </section>
+  </div>
+
+  <div class="grid21">
+    <section class="card">
+      <div class="chead"><h2>공동연구 네트워크</h2><span class="cs" id="netNote"></span>
+        <label class="cs"><input type="checkbox" id="netAll"> 1편짜리 연결도 보기</label><button class="tv" data-for="net">표로 보기</button></div>
+      <div class="legend" id="netLegend"></div>
+      <div class="net" id="net"></div>
+    </section>
+    <section class="card">
+      <div class="chead"><h2>병원 간 협업</h2><span class="cs" id="mxNote"></span><button class="tv" data-for="mx">표로 보기</button></div>
+      <div id="mx"></div>
+    </section>
+  </div>
+
+  <div class="grid2">
+    <section class="card">
+      <div class="chead"><h2>논문 유형</h2><span class="cs" id="kindNote"></span><button class="tv" data-for="kind">표로 보기</button></div>
+      <div id="kind"></div>
+    </section>
+    <section class="card">
+      <div class="chead"><h2>많이 실은 학술지</h2><span class="cs" id="jourNote"></span><button class="tv" data-for="jour">표로 보기</button></div>
+      <div id="jour"></div>
+    </section>
+  </div>
+
+  <div class="listhead"><h2>논문</h2><span class="cs" id="listCount"></span><button class="btn small" id="btnCsv">목록 내려받기 (CSV)</button></div>
+  <div class="list" id="list"></div>
+  <div class="more"><button class="btn" id="btnMore" hidden>더 보기</button></div>
+
+  <footer id="foot"></footer>
+</div>
+
+<div id="tip" hidden></div>
+<dialog id="prof" aria-labelledby="pName"><div id="profBody"></div></dialog>
+<div id="printArea"></div>
+
+<dialog id="dlg">
+  <form method="dialog" id="dlgForm">
+    <h3 id="dlgTitle">의견 보내기</h3>
+    <div class="ptitle" id="dlgPaper">빠진 논문이나 고칠 점을 관리자에게 알려 주세요.</div>
+    <label>종류</label>
+    <div class="radios" id="kinds">
+      <label><input type="radio" name="kind" value="누락된 논문"> 누락된 논문</label>
+      <label><input type="radio" name="kind" value="교실원 논문이 아님"> 교실원 논문이 아님</label>
+      <label><input type="radio" name="kind" value="저자 역할 오류"> 저자 역할 오류</label>
+      <label><input type="radio" name="kind" value="서지 정보 오류"> 연도·저널 등 서지 오류</label>
+      <label><input type="radio" name="kind" value="기타 의견"> 기타 의견</label>
+    </div>
+    <label for="dlgMember">해당 교실원</label>
+    <select id="dlgMember"></select>
+    <div id="refBox">
+      <label for="dlgRef">논문 (DOI · PMID · 제목)</label>
+      <input type="text" id="dlgRef" placeholder="예: 10.1148/radiol.2025xxxxx 또는 PMID 40000000">
+    </div>
+    <label for="dlgDetail">내용</label>
+    <textarea id="dlgDetail" placeholder="무엇을 어떻게 고쳐야 하는지 적어 주세요"></textarea>
+    <div class="row2">
+      <div><label for="dlgWho">보내는 분 (선택)</label><input type="text" id="dlgWho" placeholder="이름" autocomplete="name"></div>
+      <div><label for="dlgContact">연락처 (선택)</label><input type="text" id="dlgContact" placeholder="이메일 또는 내선" autocomplete="email"></div>
+    </div>
+    <div class="priv">보낸 내용은 관리자만 봅니다. 이 페이지에는 게시되지 않습니다.</div>
+    <div class="note" id="dlgNote" hidden>이 주소에서는 의견을 보낼 수 없습니다. 교실 내부망의 대시보드에서 보내거나 관리자에게 직접 알려 주세요.</div>
+    <div class="acts">
+      <button class="btn" value="cancel" formnovalidate>취소</button>
+      <button class="btn primary" id="dlgSend" value="send">보내기</button>
+    </div>
+  </form>
+</dialog>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="data.js"></script>
+<script>
+(() => {
+  const D = window.PROF || { meta: { years: [2024, 2026], confirmed: "-", pending: 0, title: "교실 연구 업적", basis: "epub" }, members: [], papers: [] };
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const years = []; for (let y = D.meta.years[0]; y <= D.meta.years[1]; y++) years.push(y);
+  const memberById = Object.fromEntries(D.members.map(m => [m.id, m]));
+  const KINDS = ["학술지", "학회논문", "초록", "도서"], KIND_VAR = { "학술지": "s1", "학회논문": "s2", "초록": "s3", "도서": "s4" };
+  // 역할 기준 — 기본은 주저자(제1·교신)
+  const ROLES = [["main", "주저자 (제1·교신)"], ["first", "제1저자"], ["corr", "교신저자"], ["co", "공저자"], ["", "전체"]];
+  const ROLE_NOUN = { main: "주저자", first: "제1저자", corr: "교신저자", co: "공저자", "": "전체" };
+  const st = { role: "main", year: "", member: "", hosp: "", kind: "", text: "", shown: 40 };
+  const tview = {};
+  let server = false;
+
+  document.title = D.meta.title;
+  $("title").textContent = D.meta.title;
+  $("sub").textContent = `${D.meta.years[0]}–${D.meta.years[1]} · ${D.meta.basis === "print" ? "인쇄일" : "온라인 출판일"} 기준 · 최종 확정 ${D.meta.confirmed || D.meta.updated || "-"}`;
+  $("foot").innerHTML = `주저자 = 제1저자(공동 제1저자 포함) 또는 교신저자. 저자 목록(byline)에 이름이 있는 논문만 셉니다(컨소시엄·공동연구자 명단 제외).<br>
+    규칙으로 확실하게 확인됐거나 관리자가 확인한 논문만 게시합니다${D.meta.pending ? ` (확인 중 ${D.meta.pending}건은 아직 미게시)` : ""}. 정오표·철회·프리프린트는 제외합니다.<br>
+    출처: PubMed · OpenAlex · ORCID. 빠진 논문이나 잘못된 내용은 '의견 보내기'나 각 논문의 '오류 신고'로 관리자에게 알려 주세요.<br>
+    교실원 이름을 누르면 프로필(연도별 실적·함께 쓴 교실원·업적표 인쇄)이 열립니다. · 대시보드 v0.2`;
+
+  // ---------- 필터
+  function segment(el, items, key) {
+    el.innerHTML = items.map(([v, l]) => `<button data-v="${v}" class="${st[key] === v ? "on" : ""}" aria-pressed="${st[key] === v}">${esc(l)}</button>`).join("");
+    el.onclick = e => { const b = e.target.closest("button"); if (!b) return; st[key] = b.dataset.v; st.shown = 40;
+      [...el.children].forEach(c => { c.classList.toggle("on", c === b); c.setAttribute("aria-pressed", c === b); }); render(); };
+  }
+  segment($("roles"), ROLES, "role");
+  segment($("years"), [["", "전체 연도"], ...years.slice().reverse().map(y => [String(y), `${y}년`])], "year");
+  D.members.slice().sort((a, b) => a.name.localeCompare(b.name, "ko")).forEach(m => $("fMember").add(new Option(m.name, m.id)));
+  [...new Set(D.papers.flatMap(p => p.m.map(m => m.h)).filter(Boolean))].sort((a, b) => a.localeCompare(b, "ko")).forEach(h => $("fHosp").add(new Option(h, h)));
+  const bind = (id, k) => $(id).addEventListener(id === "fText" ? "input" : "change", e => { st[k] = e.target.value.trim(); st.shown = 40; render(); });
+  bind("fMember", "member"); bind("fHosp", "hosp"); bind("fKind", "kind"); bind("fText", "text");
+
+  const isFirst = r => /제1저자|공동제1/.test(r), isCorr = r => /교신/.test(r), isMain = r => isFirst(r) || isCorr(r);
+  const roleOk = r => !st.role || (st.role === "main" && isMain(r)) || (st.role === "first" && isFirst(r)) || (st.role === "corr" && isCorr(r)) || (st.role === "co" && !isMain(r));
+  const pairOk = m => (!st.member || m.id === st.member) && (!st.hosp || m.h === st.hosp) && roleOk(m.role);
+  const paperOk = p => (!st.kind || (p.kind || "학술지") === st.kind) && (!st.text || (p.t + " " + p.j).toLowerCase().includes(st.text.toLowerCase()));
+  const yearOk = p => !st.year || String(p.y) === st.year;
+  const sliceNoYear = () => D.papers.filter(paperOk).map(p => ({ p, ms: p.m.filter(pairOk) })).filter(x => x.ms.length);
+  const basis = () => st.role ? `${ROLE_NOUN[st.role]} 논문` : "전체 논문";
+
+  // ---------- 툴팁 (값이 먼저, 이름은 뒤에)
+  const tip = $("tip");
+  function tipFill(el) {
+    tip.replaceChildren();
+    el.dataset.tip.split("\n").forEach((line, i) => {
+      const d = document.createElement("div");
+      if (line.startsWith("@")) {
+        const [v, name, val] = line.slice(1).split("|");
+        d.className = "tl"; const s = document.createElement("s"); s.style.background = `var(--${v})`;
+        d.append(s, document.createTextNode(`${name} ${val}`));
+      } else { d.className = i === 0 ? "tv" : "tl"; d.textContent = line; }
+      tip.append(d);
+    });
+    tip.hidden = false;
+  }
+  function tipAt(x, y) {
+    const r = tip.getBoundingClientRect();
+    tip.style.left = Math.min(window.innerWidth - r.width - 8, Math.max(8, x + 14)) + "px";
+    tip.style.top = Math.max(8, y - r.height - 12) + "px";
+  }
+  document.addEventListener("pointermove", e => {
+    const el = e.target.closest?.("[data-tip]");
+    if (!el) { tip.hidden = true; return; }
+    tipFill(el); tipAt(e.clientX, e.clientY);
+  });
+  document.addEventListener("focusin", e => {
+    const el = e.target.closest?.("[data-tip]"); if (!el) return;
+    tipFill(el); const r = el.getBoundingClientRect(); tipAt(r.left + r.width / 2 - 14, r.top);
+  });
+  document.addEventListener("focusout", () => { tip.hidden = true; });
+  document.addEventListener("scroll", () => { tip.hidden = true; }, { passive: true });
+
+  // ---------- 표 보기
+  document.querySelectorAll(".tv").forEach(b => b.onclick = () => { const k = b.dataset.for; tview[k] = !tview[k]; b.textContent = tview[k] ? "차트로 보기" : "표로 보기"; render(); });
+  const table = (head, rows) => `<div class="tablebox"><table><thead><tr>${head.map((h, i) => `<th class="${i ? "" : "l"}">${esc(h)}</th>`).join("")}</tr></thead>
+    <tbody>${rows.map(r => `<tr>${r.map((c, i) => `<td class="${i ? "" : "l"}">${esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+  const niceStep = max => { const raw = max / 4, p = 10 ** Math.floor(Math.log10(raw || 1)); return [1, 2, 5, 10].map(m => m * p).find(s => s >= raw) || p; };
+
+  // ---------- 연도별 (학술지 + 그 외)
+  function renderYear(slice) {
+    const by = Object.fromEntries(years.map(y => [y, { j: 0, o: 0 }]));
+    slice.forEach(({ p }) => { if (by[p.y]) by[p.y][p.kind === "학술지" ? "j" : "o"]++; });
+    $("yearNote").textContent = basis() + (st.year ? ` · ${st.year}년 강조` : "");
+    if (tview.year) { $("year").innerHTML = table(["연도", "학술지", "그 외", "합계"], years.map(y => [y, by[y].j, by[y].o, by[y].j + by[y].o])); return; }
+    stackCols($("year"), years.map(y => ({ label: String(y), tl: `${y}년`, vals: by[y], cls: st.year ? (String(y) === st.year ? " sel" : " dim") : "" })),
+      [{ key: "j", v: "s1", name: "학술지" }, { key: "o", v: "other", name: "그 외" }], { sub: basis() });
+  }
+  // ---------- 순위 막대
+  function hbars(el, items, key) {
+    if (!items.length) { el.innerHTML = `<div class="empty">조건에 맞는 논문이 없습니다</div>`; return; }
+    if (tview[key]) { el.innerHTML = table([key === "hosp" ? "병원" : "학술지", "논문"], items.map(([l, v]) => [l, v])); return; }
+    const max = Math.max(...items.map(x => x[1]));
+    el.innerHTML = `<div class="hbars">${items.map(([l, v]) => { const w = v / max * 80;
+      return `<div class="hrow" tabindex="0" data-tip="${esc(`${v}편\n${l}`)}"><span class="hl">${esc(l)}</span>
+        <span class="ht"><span class="hb" style="width:${w}%"></span><span class="hv" style="left:calc(${w}% + 7px)">${v}</span></span></div>`; }).join("")}</div>`;
+  }
+
+  // ---------- 유형 (큰 분할 막대)
+  function renderKind(list) {
+    $("kindNote").textContent = `${basis()} · 중복 제거 편수`;
+    const c = Object.fromEntries(KINDS.map(k => [k, 0])); list.forEach(({ p }) => c[p.kind || "학술지"]++);
+    const tot = list.length;
+    if (!tot) { $("kind").innerHTML = `<div class="empty">조건에 맞는 논문이 없습니다</div>`; return; }
+    const parts = KINDS.filter(k => c[k]);
+    if (tview.kind) { $("kind").innerHTML = table(["유형", "편수", "비율"], KINDS.map(k => [k, c[k], `${Math.round(c[k] / tot * 100)}%`])); return; }
+    $("kind").innerHTML = `<div class="tall" role="img" aria-label="${esc(parts.map(k => `${k} ${c[k]}편`).join(", "))}">${parts.map(k => {
+      const pct = Math.round(c[k] / tot * 100), v = KIND_VAR[k];
+      return `<div class="blk" tabindex="0" style="flex:${c[k]} 1 0;background:var(--${v});color:var(--on-${v})" data-tip="${esc(`${c[k]}편 (${pct}%)\n${k}`)}"><span>${pct}%</span></div>`; }).join("")}</div>
+      <div class="legend">${parts.map(k => `<span><i style="background:var(--${KIND_VAR[k]})"></i>${k}</span>`).join("")}</div>`;
+    $("kind").querySelectorAll(".blk").forEach(b => { const s = b.firstElementChild; if (s && s.offsetWidth + 16 > b.clientWidth) s.remove(); });
+  }
+
+  // ---------- 교실원 표 (역할 기준에 따라 열이 바뀜)
+  function renderMembers() {
+    const all = st.role === "";
+    const cols = all ? [["n", "합계"], ["main", "주저자"], ["f", "제1저자"], ["c", "교신"], ["co", "공저자"]]
+      : st.role === "main" ? [["n", "주저자 합계"], ["f", "제1저자"], ["c", "교신"]] : [["n", `${ROLE_NOUN[st.role]} 합계`]];
+    $("mLegend").hidden = !all;
+    $("mNote").textContent = `${basis()} 기준 · 많은 순 · 이름을 누르면 프로필, 행을 누르면 그 교실원만 봅니다`;
+    $("mHead").innerHTML = `<th class="l">교실원</th><th class="l">병원</th><th class="l">${all ? "주저자 · 공저자" : basis()}</th>${years.map(y => `<th>${y}</th>`).join("")}${cols.map(([k, l], i) => `<th class="${i ? "" : "hi"}">${esc(l)}</th>`).join("")}`;
+    const agg = {};
+    D.papers.forEach(p => { if (!paperOk(p) || !yearOk(p)) return; p.m.forEach(m => {
+      if ((st.hosp && m.h !== st.hosp) || !roleOk(m.role)) return;   // 교실원 선택은 강조만
+      const a = agg[m.id] ||= { y: {}, n: 0, main: 0, f: 0, c: 0 };
+      a.y[p.y] = (a.y[p.y] || 0) + 1; a.n++; if (isMain(m.role)) a.main++; if (isFirst(m.role)) a.f++; if (isCorr(m.role)) a.c++; }); });
+    const rows = D.members.map(m => { const a = agg[m.id] || { y: {}, n: 0, main: 0, f: 0, c: 0 }; a.co = a.n - a.main; return { m, a }; })
+      .sort((x, y) => y.a.n - x.a.n || y.a.f - x.a.f || x.m.name.localeCompare(y.m.name, "ko"));
+    const max = Math.max(1, ...rows.map(r => r.a.n));
+    const cell = v => v ? v : `<span class="zero">0</span>`;
+    $("mBody").innerHTML = rows.map(({ m, a }) => {
+      const w = a.n / max * 100;
+      const tipTxt = all ? `${a.n}편\n${m.name}\n@main|주저자|${a.main}\n@co|공저자|${a.co}` : `${a.n}편\n${m.name} · ${basis()}`;
+      const segs = all ? `${a.main ? `<span style="flex:${a.main} 1 0;background:var(--main)"></span>` : ""}${a.co ? `<span style="flex:${a.co} 1 0;background:var(--co)"></span>` : ""}`
+        : `<span style="flex:1 1 0;background:var(--main)"></span>`;
+      const bar = a.n ? `<div class="thin" tabindex="0" style="width:${w}%" data-tip="${esc(tipTxt)}">${segs}</div>` : "";
+      return `<tr data-id="${esc(m.id)}" class="${st.member === m.id ? "sel" : ""}">
+        <td class="l"><button class="mname" data-prof="${esc(m.id)}" title="프로필 보기">${esc(m.name)}</button><span class="en">${esc(m.en)}</span>${m.left ? `<span class="en">· ${esc(m.left)} 퇴사</span>` : ""}</td><td class="l">${esc(m.hosp)}</td><td class="l bar">${bar}</td>
+        ${years.map(y => `<td>${cell(a.y[y])}</td>`).join("")}${cols.map(([k], i) => `<td class="${i ? "" : "hi"}">${cell(a[k])}</td>`).join("")}</tr>`; }).join("");
+  }
+  $("mBody").onclick = e => { if (e.target.closest("[data-prof]")) return; const tr = e.target.closest("tr"); if (!tr) return;
+    st.member = st.member === tr.dataset.id ? "" : tr.dataset.id; $("fMember").value = st.member; st.shown = 40; render(); };
+
+  // ---------- 논문 목록
+  function paperHTML(p, ms) {
+    const mpos = new Set(p.m.map(m => m.pos));
+    const au = p.au.map(([pos, name]) => pos && mpos.has(pos) ? `<b>${esc(name)}</b>` : esc(name)).join(", ");
+    const link = p.doi ? `https://doi.org/${p.doi}` : p.pmid ? `https://pubmed.ncbi.nlm.nih.gov/${p.pmid}/` : "";
+    const shown = new Set(ms.map(m => m.id));
+    const tags = p.m.filter(m => shown.has(m.id)).concat(p.m.filter(m => !shown.has(m.id)))
+      .map(m => `<button class="tag${isMain(m.role) ? " main" : ""}" data-prof="${esc(m.id)}" title="프로필 보기">${esc(memberById[m.id]?.name || m.id)}${m.role ? " · " + esc(m.role) : ""}</button>`).join("");
+    return `<div class="paper">
+      <div class="top"><span>${esc(p.d)}</span><span>·</span><span>${esc(p.j)}</span>${p.kind && p.kind !== "학술지" ? `<span class="tag kind">${esc(p.kind)}</span>` : ""}${p.new ? `<span class="tag new">새로 게시</span>` : ""}</div>
+      <div class="t">${link ? `<a href="${esc(link)}" target="_blank" rel="noopener">${esc(p.t)}</a>` : esc(p.t)}</div>
+      <div class="au">${au}${p.n > 9 ? ` <span>(${p.n}명)</span>` : ""}</div>
+      <div class="bottom">${tags}<div class="links">
+        ${p.pmid ? `<a href="https://pubmed.ncbi.nlm.nih.gov/${esc(p.pmid)}/" target="_blank" rel="noopener">PubMed</a>` : ""}
+        ${p.doi ? `<a href="https://doi.org/${esc(p.doi)}" target="_blank" rel="noopener">DOI</a>` : ""}
+        <button class="report" data-k="${esc(p.k)}">오류 신고</button></div></div></div>`;
+  }
+
+
+  // ================= v0.2 =================
+  const cut = (() => { const c = String(D.meta.confirmed || "").slice(0, 10); return /^\d{4}-\d{2}-\d{2}$/.test(c) ? c : new Date().toISOString().slice(0, 10); })();
+  const cutY = +cut.slice(0, 4), cutM = +cut.slice(5, 7), cutD = +cut.slice(8, 10);
+  const monthOf = p => (p.d && p.d.length >= 7 && +p.d.slice(0, 4) === p.y) ? +p.d.slice(5, 7) : 0;
+  const dayOf = p => (p.d && p.d.length >= 10) ? +p.d.slice(8, 10) : 0;
+  const HOSP_VAR = { "서울성모병원": "s1", "은평성모병원": "s2", "인천성모병원": "s3" };   // 병원 색은 3개까지(나머지 회색)
+  const hospVar = h => HOSP_VAR[h] || "other";
+  const shortH = h => (h || "").replace(/성모병원$/, "").replace(/병원$/, "") || "미상";
+  const mName = id => memberById[id]?.name || id;
+  const tipRows = rows => rows.map(([v, n, x]) => `@${v}|${n}|${x}`).join("\n");
+
+  // 쌓은 세로 막대(연도별 등): cats=[{label, vals:{key:n}}], ser=[{key, v, name}]
+  function stackCols(el, cats, ser, o = {}) {
+    const CH = o.h || 270, XB = 30;
+    const tot = c => ser.reduce((a, s) => a + (c.vals[s.key] || 0), 0);
+    const maxT = Math.max(1, ...cats.map(tot)), step = niceStep(maxT), top = Math.ceil(maxT / step) * step;
+    const px = v => v / top * (CH - XB - 22);
+    let g = "";
+    for (let t = 0; t <= top; t += step) g += `<div class="gl${t ? "" : " base"}" style="bottom:${XB + px(t)}px"></div><div class="gt" style="bottom:${XB + px(t)}px">${t}</div>`;
+    const slots = cats.map(c => {
+      let b = 0, segs = "";
+      const nz = ser.filter(s => c.vals[s.key]);
+      nz.forEach((s, i) => { const h = px(c.vals[s.key]), gap = i ? 2 : 0;
+        segs += `<div class="bseg${i === nz.length - 1 ? " top" : ""}" style="bottom:${b + gap}px;height:${Math.max(h - gap, 1)}px;background:var(--${s.v})"></div>`; b += h; });
+      const T = tot(c);
+      return `<div class="slot${c.cls || ""}" tabindex="0" data-tip="${esc(`${T}편\n${c.tl || c.label}${o.sub ? " " + o.sub : ""}\n` + tipRows(ser.map(s => [s.v, s.name, c.vals[s.key] || 0])))}">
+        ${segs}<div class="cap" style="bottom:${b + 4}px">${T || ""}</div><div class="xl">${esc(c.label)}</div></div>`;
+    }).join("");
+    el.innerHTML = `<div class="cols" style="height:${CH}px">${g}<div class="slots">${slots}</div></div>`;
+  }
+
+  // 선그래프 + 십자선(가장 가까운 x에 붙음, 모든 선의 값을 한 툴팁에)
+  const measure = (() => { const c = document.createElement("canvas").getContext("2d"); return (t, px = 13) => { c.font = `${px}px system-ui, -apple-system, "Apple SD Gothic Neo", sans-serif`; return c.measureText(t).width; }; })();
+  function lineChart(el, xs, series, o = {}) {
+    const endTxt = s => `${s.label ?? s.name} ${s.vals.filter(v => v != null).pop() ?? ""}`;
+    const W = Math.max(300, el.clientWidth || 560), H = o.h || 260, L = 36, T = 12, B = 28;
+    const R = o.endLabels ? Math.min(W * 0.35, 16 + Math.max(0, ...series.map(s => measure(endTxt(s))))) : 14;   // 끝 이름표 너비만큼
+    const pw = W - L - R, ph = H - T - B;
+    const vals = series.flatMap(s => s.vals.filter(v => v != null));
+    const max = Math.max(1, ...vals), step = niceStep(max), top = Math.ceil(max / step) * step;
+    const X = i => L + (xs.length > 1 ? i / (xs.length - 1) * pw : pw / 2), Y = v => T + ph - v / top * ph;
+    let g = "";
+    for (let t = 0; t <= top; t += step) g += `<line class="gridl${t ? "" : " base"}" x1="${L}" x2="${L + pw}" y1="${Y(t)}" y2="${Y(t)}"/><text class="tick" x="${L - 7}" y="${Y(t) + 4}" text-anchor="end">${t}</text>`;
+    const every = o.tickEvery || 1;
+    xs.forEach((lab, i) => { if (i % every === 0) g += `<text class="tick" x="${X(i)}" y="${H - 8}" text-anchor="middle">${esc(o.tickFmt ? o.tickFmt(lab, i) : lab)}</text>`; });
+    // 끝 라벨: 겹치면 아래로 밀지 않고 범례·툴팁에 맡긴다
+    const ends = [];
+    const lines = series.map(s => {
+      const pts = s.vals.map((v, i) => v == null ? null : [X(i), Y(v), v]).filter(Boolean);
+      if (!pts.length) return "";
+      const d = pts.map((q, i) => (i ? "L" : "M") + q[0].toFixed(1) + " " + q[1].toFixed(1)).join("");
+      const last = pts[pts.length - 1];
+      if (o.endLabels) ends.push({ x: last[0], y: last[1], t: `${s.label ?? s.name} ${last[2]}` });
+      return `<path class="ser" d="${d}" style="stroke:var(--${s.v})"/><circle class="dot" cx="${last[0]}" cy="${last[1]}" r="4" style="fill:var(--${s.v})"/>`;
+    }).join("");
+    ends.sort((a, b) => a.y - b.y);
+    const lab = ends.filter((e, i) => !ends.some((f, j) => j !== i && Math.abs(f.y - e.y) < 15 && Math.abs(f.x - e.x) < 60))
+      .map(e => `<text class="endl" x="${e.x + 8}" y="${e.y + 4}">${esc(e.t)}</text>`).join("");
+    el.innerHTML = `<div class="lc"><svg viewBox="0 0 ${W} ${H}" height="${H}" role="img" aria-label="${esc(o.aria || "")}">${g}${lines}${lab}
+      <line class="cross" y1="${T}" y2="${T + ph}" visibility="hidden"/><rect class="hit" tabindex="0" x="${L - 6}" y="${T}" width="${pw + 12}" height="${ph}" fill="transparent"/></svg></div>`;
+    const svg = el.querySelector("svg"), cross = svg.querySelector(".cross"), hit = svg.querySelector(".hit");
+    let cur = xs.length - 1;
+    const setTip = i => { cur = i; cross.setAttribute("x1", X(i)); cross.setAttribute("x2", X(i)); cross.setAttribute("visibility", "visible");
+      hit.setAttribute("data-tip", `${o.xFull ? o.xFull(xs[i], i) : xs[i]}\n` + tipRows(series.filter(s => s.vals[i] != null).map(s => [s.v, s.name, `${s.vals[i]}편`]))); };
+    hit.addEventListener("pointermove", e => { const r = svg.getBoundingClientRect(); const sx = (e.clientX - r.left) * W / r.width;
+      setTip(Math.max(0, Math.min(xs.length - 1, Math.round((sx - L) / pw * (xs.length - 1))))); });
+    hit.addEventListener("focus", () => setTip(cur));
+    hit.addEventListener("keydown", e => { if (e.key === "ArrowLeft" || e.key === "ArrowRight") { setTip(Math.max(0, Math.min(xs.length - 1, cur + (e.key === "ArrowLeft" ? -1 : 1))));
+      tipFill(hit); const r = hit.getBoundingClientRect(); tipAt(r.left + (X(cur) - L) / pw * r.width, r.top); e.preventDefault(); } });
+    hit.addEventListener("pointerleave", () => cross.setAttribute("visibility", "hidden"));
+    hit.addEventListener("blur", () => cross.setAttribute("visibility", "hidden"));
+  }
+
+  // ---------- 올해와 지난해 (월별 누적, 최근 3년)
+  function renderPace(noYear) {
+    const ys = years.filter(y => y <= cutY).slice(-3), V = ["y0", "y1", "y2"].slice(-ys.length);
+    const cnt = Object.fromEntries(ys.map(y => [y, Array(13).fill(0)]));
+    let nomonth = 0, sameThis = 0, samePrev = 0;
+    const inSame = p => { const m = monthOf(p), d = dayOf(p); return m && (m < cutM || (m === cutM && d && d <= cutD)); };
+    noYear.forEach(({ p }) => {
+      if (!cnt[p.y]) return; const m = monthOf(p); if (!m) { nomonth++; return; } cnt[p.y][m]++;
+      if (p.y === cutY && inSame(p)) sameThis++; if (p.y === cutY - 1 && inSame(p)) samePrev++; });
+    const xs = Array.from({ length: 12 }, (_, i) => i + 1);
+    const series = ys.map((y, i) => { let c = 0; return { name: `${y}년`, label: `${y}`, v: V[i],
+      vals: xs.map(m => { c += cnt[y][m]; return y === cutY && m > cutM ? null : c; }) }; });
+    $("paceNote").textContent = `${basis()} · 월별 누적${nomonth ? ` · 출판 월이 없는 ${nomonth}편 제외` : ""}`;
+    $("paceLegend").innerHTML = series.map(s => `<span><s style="background:var(--${s.v})"></s>${esc(s.name)}${s.name === `${cutY}년` ? ` (${cutM}월 ${cutD}일까지)` : ""}</span>`).join("");
+    if (ys.includes(cutY) && ys.includes(cutY - 1)) {
+      const diff = sameThis - samePrev, pct = samePrev ? Math.round(diff / samePrev * 100) : null;
+      $("yoy").innerHTML = `${cutY}년 ${cutM}월 ${cutD}일까지 <b>${sameThis}편</b> · ${cutY - 1}년 같은 기간 ${samePrev}편 ` +
+        (diff === 0 ? "(같음)" : `<span class="${diff > 0 ? "delta-up" : "delta-down"}">${diff > 0 ? "▲" : "▼"} ${Math.abs(diff)}편${pct != null ? ` (${diff > 0 ? "+" : ""}${pct}%)` : ""}</span>`);
+    } else $("yoy").textContent = "";
+    if (tview.pace) { $("pace").innerHTML = table(["월", ...series.map(s => s.name + " 누적")], xs.map((m, i) => [`${m}월`, ...series.map(s => s.vals[i] ?? "—")])); return; }
+    lineChart($("pace"), xs, series, { endLabels: true, h: 250, tickFmt: m => `${m}월`, xFull: m => `${m}월까지 누적`, aria: `연도별 월 누적 논문 수: ${series.map(s => `${s.name} ${s.vals.filter(v => v != null).pop()}편`).join(", ")}` });
+  }
+
+  // ---------- 누적 비교 (병원 또는 교실원, 최대 4개 — 색은 고른 대상에 붙어 다닌다)
+  const cmp = { mode: "hosp", sel: { hosp: [], mem: [] }, slot: { hosp: {}, mem: {} }, init: false };
+  const SLOTS = ["s1", "s2", "s3", "s4"];
+  function cmpToggle(id) {
+    const m = cmp.mode, sel = cmp.sel[m], sl = cmp.slot[m];
+    if (sel.includes(id)) { sel.splice(sel.indexOf(id), 1); delete sl[id]; }
+    else { if (sel.length >= 4) { toast("4개까지 비교할 수 있습니다"); return; } sel.push(id);
+      const fixed = m === "hosp" ? HOSP_VAR[id] : null, used = Object.values(sl);   // 병원 색은 네트워크와 같게(비어 있으면)
+      sl[id] = fixed && !used.includes(fixed) ? fixed : SLOTS.find(v => !used.includes(v) && !(m === "hosp" && Object.values(HOSP_VAR).includes(v) && sel.some(x => HOSP_VAR[x] === v))); }
+    render();
+  }
+  function renderCompare(cslice) {
+    const hc = {}, mc = {};
+    cslice.forEach(({ p, ms }) => { new Set(ms.map(m => m.h).filter(Boolean)).forEach(h => hc[h] = (hc[h] || 0) + 1); new Set(ms.map(m => m.id)).forEach(id => mc[id] = (mc[id] || 0) + 1); });
+    if (!cmp.init) {   // 처음: 병원은 네트워크 색이 정해진 세 곳, 교실원은 논문이 많은 3명 (이후에는 사용자가 고른 대로)
+      cmp.init = true;
+      Object.entries(HOSP_VAR).forEach(([h, v]) => { if (hc[h]) { cmp.sel.hosp.push(h); cmp.slot.hosp[h] = v; } });
+      Object.entries(mc).sort((a, b) => b[1] - a[1]).slice(0, 3).forEach(([id], i) => { cmp.sel.mem.push(id); cmp.slot.mem[id] = SLOTS[i]; });
+    }
+    const m = cmp.mode, sel = cmp.sel[m], sl = cmp.slot[m];
+    const opts = m === "hosp" ? Object.keys(hc).sort((a, b) => hc[b] - hc[a]) : Object.keys(mc).sort((a, b) => mName(a).localeCompare(mName(b), "ko"));
+    const label = id => m === "hosp" ? id : mName(id);
+    $("cmpCtl").innerHTML = `<div class="seg" role="group" aria-label="비교 대상"><button data-cm="hosp" class="${m === "hosp" ? "on" : ""}">병원</button><button data-cm="mem" class="${m === "mem" ? "on" : ""}">교실원</button></div><span class="sep"></span>` +
+      sel.map(id => `<button class="chip on" data-ct="${esc(id)}" title="빼기"><i style="background:var(--${sl[id]})"></i>${esc(label(id))} ✕</button>`).join("") +
+      (sel.length < 4 && opts.some(id => !sel.includes(id)) ? `<select id="cmpAdd" aria-label="${m === "hosp" ? "병원" : "교실원"} 추가"><option value="">+ ${m === "hosp" ? "병원" : "교실원"} 추가</option>${
+        opts.filter(id => !sel.includes(id)).map(id => `<option value="${esc(id)}">${esc(label(id))} (${(m === "hosp" ? hc : mc)[id]})</option>`).join("")}</select>` : "");
+    $("cmpNote").textContent = `${basis()} · 월별 누적 · 역할·유형·연도·검색 필터 적용`;
+    // x: 시작 월 ~ 확정 월
+    const y0 = st.year ? +st.year : years[0], y1 = st.year ? +st.year : Math.min(years[years.length - 1], cutY);
+    const xs = []; for (let y = y0; y <= y1; y++) for (let mm = 1; mm <= 12; mm++) { if (y === cutY && mm > cutM) break; xs.push(`${y}-${String(mm).padStart(2, "0")}`); }
+    const idx = Object.fromEntries(xs.map((x, i) => [x, i]));
+    const series = sel.map(id => {
+      const arr = Array(xs.length).fill(0);
+      cslice.forEach(({ p, ms }) => { const hit = m === "hosp" ? ms.some(x => x.h === id) : ms.some(x => x.id === id); if (!hit) return;
+        const mm = monthOf(p); const k = mm ? `${p.y}-${String(mm).padStart(2, "0")}` : `${p.y}-01`; if (idx[k] != null) arr[idx[k]]++; });
+      let c = 0; return { name: label(id), v: sl[id], vals: arr.map(v => (c += v)) };
+    });
+    if (!series.length) { $("cmp").innerHTML = `<div class="empty">비교할 ${m === "hosp" ? "병원" : "교실원"}을 위에서 고르세요</div>`; return; }
+    if (tview.cmp) { const step = xs.length > 14 ? 3 : 1; $("cmp").innerHTML = table(["월", ...series.map(s => s.name)], xs.map((x, i) => [x, ...series.map(s => s.vals[i])]).filter((_, i) => i % step === step - 1 || i === xs.length - 1)); return; }
+    lineChart($("cmp"), xs, series, { endLabels: series.length <= 4, h: 250, tickEvery: xs.length > 14 ? 6 : 1,
+      tickFmt: x => xs.length > 14 ? x.slice(2).replace("-", ".") : `${+x.slice(5)}월`, xFull: x => `${x.slice(0, 4)}년 ${+x.slice(5)}월까지 누적`,
+      aria: `누적 비교: ${series.map(s => `${s.name} ${s.vals[s.vals.length - 1]}편`).join(", ")}` });
+  }
+  $("cmpCtl").addEventListener("click", e => {
+    const b = e.target.closest("[data-cm]"); if (b) { cmp.mode = b.dataset.cm; render(); return; }
+    const c = e.target.closest("[data-ct]"); if (c) cmpToggle(c.dataset.ct);
+  });
+  $("cmpCtl").addEventListener("change", e => { if (e.target.id === "cmpAdd" && e.target.value) cmpToggle(e.target.value); });
+
+  // ---------- 최근 논문
+  function renderFeed(slice) {
+    const L = slice.slice().sort((a, b) => (b.p.fs || "").localeCompare(a.p.fs || "") || (b.p.d || "").localeCompare(a.p.d || "")).slice(0, 6);
+    $("feedNote").textContent = `${basis()} · 최근 게시·출판 순 6편`;
+    $("feed").innerHTML = L.length ? L.map(({ p, ms }) => { const link = p.doi ? `https://doi.org/${p.doi}` : p.pmid ? `https://pubmed.ncbi.nlm.nih.gov/${p.pmid}/` : "";
+      return `<div class="fi"><div class="fd">${esc(p.d)} · ${esc(p.j)}${p.new ? ` · <span class="tag new">새로 게시</span>` : ""}</div>
+        <div class="ft">${link ? `<a href="${esc(link)}" target="_blank" rel="noopener">${esc(p.t)}</a>` : esc(p.t)}</div>
+        <div>${ms.map(m => `<button class="tag${isMain(m.role) ? " main" : ""}" data-prof="${esc(m.id)}">${esc(mName(m.id))}${m.role ? " · " + esc(m.role) : ""}</button>`).join(" ")}</div></div>`; }).join("")
+      : `<div class="empty">조건에 맞는 논문이 없습니다</div>`;
+  }
+
+  // ---------- 공동연구 네트워크 (교실원 = 점, 함께 쓴 논문 = 선)
+  const netCache = {};
+  function forceLayout(nodes, links, W, H) {
+    const n = nodes.length, ix = Object.fromEntries(nodes.map((d, i) => [d.id, i])), k = Math.sqrt(W * H / Math.max(n, 1)) * 0.62;
+    nodes.forEach((d, i) => { const a = i * 2.39996, r = Math.sqrt((i + 0.5) / n) * Math.min(W, H) * 0.42; d.x = W / 2 + Math.cos(a) * r; d.y = H / 2 + Math.sin(a) * r; });
+    const IT = 320;
+    for (let it = 0; it < IT; it++) {
+      const temp = Math.max(1, W * 0.08 * (1 - it / IT)), dx = new Float64Array(n), dy = new Float64Array(n);
+      for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
+        let ex = nodes[i].x - nodes[j].x, ey = nodes[i].y - nodes[j].y; const d = Math.hypot(ex, ey) || 0.01, f = k * k / d;
+        ex /= d; ey /= d; dx[i] += ex * f; dy[i] += ey * f; dx[j] -= ex * f; dy[j] -= ey * f; }
+      links.forEach(l => { const a = ix[l.a], b = ix[l.b]; let ex = nodes[a].x - nodes[b].x, ey = nodes[a].y - nodes[b].y; const d = Math.hypot(ex, ey) || 0.01,
+        f = d * d / k * Math.min(1 + Math.log(l.v), 3); ex /= d; ey /= d; dx[a] -= ex * f; dy[a] -= ey * f; dx[b] += ex * f; dy[b] += ey * f; });
+      nodes.forEach((d, i) => { dx[i] += (W / 2 - d.x) * 0.9; dy[i] += (H / 2 - d.y) * 0.9 * (W / H);
+        const len = Math.hypot(dx[i], dy[i]) || 1; d.x += dx[i] / len * Math.min(len, temp); d.y += dy[i] / len * Math.min(len, temp);
+        d.x = Math.max(24, Math.min(W - 24, d.x)); d.y = Math.max(18, Math.min(H - 18, d.y)); });
+    }
+  }
+  function renderNet(nslice) {
+    const cnt = {}, w = {};
+    nslice.forEach(p => { const ids = [...new Set(p.m.map(m => m.id))].sort(); ids.forEach(id => cnt[id] = (cnt[id] || 0) + 1);
+      for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) { const kk = ids[i] + "\u0001" + ids[j]; w[kk] = (w[kk] || 0) + 1; } });
+    const all = $("netAll").checked, minW = all ? 1 : 2;
+    const links = Object.entries(w).filter(([, v]) => v >= minW).map(([kk, v]) => { const [a, b] = kk.split("\u0001"); return { a, b, v }; });
+    const ids = [...new Set(links.flatMap(l => [l.a, l.b]))].sort((a, b) => (cnt[b] - cnt[a]) || a.localeCompare(b));
+    const nb = {}; links.forEach(l => { (nb[l.a] ||= []).push([l.b, l.v]); (nb[l.b] ||= []).push([l.a, l.v]); });
+    const alone = Object.keys(cnt).length - ids.length;
+    $("netNote").textContent = `연도·유형·검색 필터 적용 · 함께 쓴 논문 ${minW}편 이상 · 교실원 ${ids.length}명${alone ? ` (연결 없는 ${alone}명 생략)` : ""}`;
+    $("netLegend").innerHTML = Object.entries(HOSP_VAR).map(([h, v]) => `<span><i style="background:var(--${v});border-radius:50%"></i>${esc(h)}</span>`).join("") +
+      `<span><i style="background:var(--other);border-radius:50%"></i>그 외 병원</span><span>점 크기 = 논문 수 · 선 굵기 = 함께 쓴 논문 수</span>`;
+    if (tview.net) {
+      const pairs = links.slice().sort((a, b) => b.v - a.v).slice(0, 40);
+      $("net").innerHTML = pairs.length ? table(["교실원", "교실원", "함께 쓴 논문"], pairs.map(l => [mName(l.a), mName(l.b), l.v])) : `<div class="empty">연결이 없습니다</div>`; return;
+    }
+    if (!ids.length) { $("net").innerHTML = `<div class="empty">함께 쓴 논문이 ${minW}편 이상인 교실원이 없습니다</div>`; return; }
+    const W = Math.max(320, $("net").clientWidth || 700), H = Math.round(Math.min(560, Math.max(380, W * 0.62)));
+    const key = `${W}|${minW}|${links.map(l => l.a + l.b + l.v).join(",")}`;
+    let nodes = netCache[key];
+    if (!nodes) { nodes = ids.map(id => ({ id })); forceLayout(nodes, links, W, H); netCache[key] = nodes; }
+    const P = Object.fromEntries(nodes.map(d => [d.id, d]));
+    const R = id => Math.min(15, 4 + 1.8 * Math.sqrt(cnt[id]));
+    const topIds = new Set(ids.slice(0, 12));
+    const lines = links.map(l => `<line class="ln" data-a="${esc(l.a)}" data-b="${esc(l.b)}" x1="${P[l.a].x.toFixed(1)}" y1="${P[l.a].y.toFixed(1)}" x2="${P[l.b].x.toFixed(1)}" y2="${P[l.b].y.toFixed(1)}" stroke-width="${Math.min(5, 0.8 + 0.6 * (l.v - 1)).toFixed(1)}"/>`).join("");
+    const dots = nodes.map(d => { const m = memberById[d.id] || {}, r = R(d.id), nbs = (nb[d.id] || []).sort((a, b) => b[1] - a[1]);
+      const tipTxt = `${cnt[d.id]}편\n${m.name || d.id} · ${m.hosp || "병원 미상"}\n함께 쓴 교실원 ${nbs.length}명` + (nbs.length ? `\n많이 함께: ${nbs.slice(0, 3).map(([o, v]) => `${mName(o)} ${v}`).join(", ")}` : "");
+      return `<g class="n" data-id="${esc(d.id)}" tabindex="0" role="button" aria-label="${esc(`${m.name || d.id}, 논문 ${cnt[d.id]}편, 프로필 열기`)}" data-tip="${esc(tipTxt)}">
+        <circle cx="${d.x.toFixed(1)}" cy="${d.y.toFixed(1)}" r="${Math.max(r + 6, 12)}" fill="transparent"/>
+        <circle class="nd" cx="${d.x.toFixed(1)}" cy="${d.y.toFixed(1)}" r="${r.toFixed(1)}" style="fill:var(--${hospVar(m.hosp)})"/></g>`; }).join("");
+    const labels = nodes.map(d => { const m = memberById[d.id] || {}, r = R(d.id), t = m.name || d.id, left = d.x + r + 4 + measure(t, 12) > W;   // 오른쪽 끝이면 왼쪽에
+      return `<text class="lbl${topIds.has(d.id) ? " top" : ""}" data-id="${esc(d.id)}" x="${(left ? d.x - r - 4 : d.x + r + 4).toFixed(1)}" y="${(d.y + 4).toFixed(1)}"${left ? ' text-anchor="end"' : ""}>${esc(t)}</text>`; }).join("");
+    $("net").innerHTML = `<svg viewBox="0 0 ${W} ${H}" height="${H}" role="img" aria-label="교실원 공동연구 네트워크">${lines}${dots}<g class="labels">${labels}</g></svg>`;
+    const box = $("net"), focusOn = id => {
+      if (!id) { box.classList.remove("focus"); box.querySelectorAll(".hot").forEach(x => x.classList.remove("hot")); return; }
+      const keep = new Set([id, ...(nb[id] || []).map(([o]) => o)]);
+      box.classList.add("focus");
+      box.querySelectorAll("g.n, .lbl").forEach(g => g.classList.toggle("hot", keep.has(g.dataset.id)));
+      box.querySelectorAll(".ln").forEach(l => l.classList.toggle("hot", l.dataset.a === id || l.dataset.b === id));
+    };
+    box.querySelectorAll("g.n").forEach(g => { g.addEventListener("pointerenter", () => focusOn(g.dataset.id)); g.addEventListener("focus", () => focusOn(g.dataset.id));
+      g.addEventListener("click", () => openProfile(g.dataset.id)); g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { openProfile(g.dataset.id); e.preventDefault(); } }); });
+    const reset = () => focusOn(st.member && P[st.member] ? st.member : "");
+    box.querySelector("svg").addEventListener("pointerleave", reset);
+    box.querySelectorAll("g.n").forEach(g => g.addEventListener("blur", reset));
+    reset();
+  }
+  $("netAll").addEventListener("change", () => render());
+
+  // ---------- 병원 간 협업 (행렬: 칸 = 두 병원 교실원이 함께 쓴 논문 수)
+  function renderMatrix(nslice) {
+    const hc = {}, pair = {};
+    nslice.forEach(p => { const hs = {}; p.m.forEach(m => { if (m.h) hs[m.h] = (hs[m.h] || 0) + 1; });
+      const H = Object.keys(hs); H.forEach(h => hc[h] = (hc[h] || 0) + 1);
+      H.forEach(a => H.forEach(b => { if (a < b) pair[a + "|" + b] = (pair[a + "|" + b] || 0) + 1; }));
+      H.forEach(h => { if (hs[h] > 1) pair[h + "|" + h] = (pair[h + "|" + h] || 0) + 1; }); });
+    const hs = Object.keys(hc).sort((a, b) => hc[b] - hc[a]);
+    const get = (a, b) => pair[a < b ? a + "|" + b : b + "|" + a] || 0;
+    $("mxNote").textContent = "연도·유형·검색 필터 적용 · 교실원 현재 병원 기준";
+    if (!hs.length) { $("mx").innerHTML = `<div class="empty">조건에 맞는 논문이 없습니다</div>`; return; }
+    if (tview.mx) {
+      const rows = []; hs.forEach((a, i) => hs.slice(i).forEach(b => { const v = get(a, b); if (v) rows.push([a === b ? `${a} (병원 안)` : `${a} ↔ ${b}`, v]); }));
+      $("mx").innerHTML = table(["병원", "함께 쓴 논문"], rows.sort((x, y) => y[1] - x[1])); return;
+    }
+    const max = Math.max(1, ...hs.flatMap(a => hs.map(b => get(a, b))));
+    const bin = v => v ? Math.max(1, Math.min(5, Math.ceil(Math.log(v + 1) / Math.log(max + 1) * 5))) : 0;   // 로그 눈금(한 칸이 커도 나머지가 구분되게)
+    let h = `<div class="mx" style="grid-template-columns:minmax(44px,auto) repeat(${hs.length}, minmax(0,1fr))"><div></div>${hs.map(x => `<div class="h v" title="${esc(x)}">${esc(shortH(x))}</div>`).join("")}`;
+    hs.forEach(a => { h += `<div class="h r" title="${esc(a)}">${esc(shortH(a))}</div>`;
+      hs.forEach(b => { const v = get(a, b), t = a === b ? `${v}편\n${a} 안에서 교실원 둘 이상` : `${v}편\n${a} ↔ ${b}`;
+        h += `<div class="c" tabindex="0" style="background:${v ? `var(--h${bin(v)})` : "var(--wash)"}" data-tip="${esc(t)}"></div>`; }); });
+    h += `</div><div class="scale"><span>1편</span>${[1, 2, 3, 4, 5].map(i => `<i style="background:var(--h${i})"></i>`).join("")}<span>${max}편 (로그 눈금)</span><i style="background:var(--wash);margin-left:8px"></i><span>없음</span></div>`;
+    $("mx").innerHTML = h;
+  }
+
+  // ---------- 교실원 프로필
+  function memberStats(id) {
+    const mine = D.papers.map(p => ({ p, me: p.m.find(x => x.id === id) })).filter(x => x.me).sort((a, b) => (b.p.d || "").localeCompare(a.p.d || ""));
+    const s = { n: mine.length, main: 0, f: 0, c: 0, y: {}, j: {}, co: {}, kind: {} };
+    mine.forEach(({ p, me }) => { const r = me.role || "";
+      if (isMain(r)) s.main++; if (isFirst(r)) s.f++; if (isCorr(r)) s.c++;
+      const yy = s.y[p.y] ||= { main: 0, co: 0 }; yy[isMain(r) ? "main" : "co"]++;
+      if (p.j) s.j[p.j] = (s.j[p.j] || 0) + 1; s.kind[p.kind || "학술지"] = (s.kind[p.kind || "학술지"] || 0) + 1;
+      new Set(p.m.map(x => x.id)).forEach(o => { if (o !== id) s.co[o] = (s.co[o] || 0) + 1; }); });
+    return { mine, s };
+  }
+  function openProfile(id) {
+    const m = memberById[id]; if (!m) return;
+    const { mine, s } = memberStats(id);
+    const kpi = (l, v, d) => `<div class="kpi"><div class="l">${esc(l)}</div><div class="v">${v}</div><div class="d">${esc(d)}</div></div>`;
+    const co = Object.entries(s.co).sort((a, b) => b[1] - a[1]);
+    $("profBody").innerHTML = `<div class="ph"><div><h2 id="pName">${esc(m.name)}</h2>
+        <div class="pmeta">${m.en ? `<span>${esc(m.en)}</span>` : ""}${m.pos ? `<span class="badge2">${esc(m.pos)}</span>` : ""}${m.hosp ? `<span class="badge2">${esc(m.hosp)}</span>` : ""}
+        ${m.left ? `<span class="badge2 left">${esc(m.left)} 퇴사</span>` : ""}${m.orcid ? `<a href="https://orcid.org/${esc(m.orcid)}" target="_blank" rel="noopener">ORCID ${esc(m.orcid)}</a>` : ""}</div></div>
+      <div class="acts2"><button class="btn small" data-pa="filter">이 교실원만 보기</button><button class="btn small" data-pa="link">링크 복사</button>
+        <button class="btn small" data-pa="print">업적표 인쇄</button><button class="btn small" data-pa="close" aria-label="닫기" autofocus>닫기 ✕</button></div></div>
+      <div class="pb">
+        <div class="kpis">${kpi("전체 논문", s.n, `${years[0]}–${years[years.length - 1]}`)}${kpi("주저자 (제1·교신)", s.main, `공저자 ${s.n - s.main}편`)}${kpi("제1저자", s.f, "공동 제1저자 포함")}${kpi("교신저자", s.c, Object.entries(s.kind).map(([k, v]) => `${k} ${v}`).join(" · "))}</div>
+        <div class="grid2">
+          <section class="card"><div class="chead"><h2>연도별</h2><span class="cs">주저자 · 공저자</span></div>
+            <div class="legend"><span><i style="background:var(--main)"></i>주저자 (제1·교신)</span><span><i style="background:var(--co)"></i>공저자</span></div><div id="pYear"></div></section>
+          <section class="card"><div class="chead"><h2>많이 실은 학술지</h2><span class="cs">상위 6</span></div><div id="pJour"></div></section>
+        </div>
+        <h3>함께 쓴 교실원 ${co.length ? `<span class="cs">${co.length}명 · 누르면 그 사람 프로필</span>` : ""}</h3>
+        <div class="chips">${co.length ? co.slice(0, 24).map(([o, v]) => `<button class="chip" data-prof="${esc(o)}"><i style="background:var(--${hospVar(memberById[o]?.hosp)})"></i>${esc(mName(o))} ${v}</button>`).join("") : `<span class="cs">교실원과 함께 쓴 논문이 없습니다</span>`}</div>
+        <h3>논문 ${s.n}편 <span class="cs">최신순</span></h3>
+        <div class="list">${mine.map(({ p }) => paperHTML(p, p.m.filter(x => x.id === id))).join("") || `<div class="empty">게시된 논문이 없습니다</div>`}</div>
+      </div>`;
+    stackCols($("pYear"), years.map(y => ({ label: String(y), vals: s.y[y] || {} })), [{ key: "main", v: "main", name: "주저자" }, { key: "co", v: "co", name: "공저자" }], { h: 200, sub: m.name });
+    hbars($("pJour"), Object.entries(s.j).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 6), "pjour");
+    if (!$("prof").open) $("prof").showModal();
+    $("prof").scrollTop = 0; $("prof").dataset.id = id;
+    history.replaceState(null, "", "#m=" + encodeURIComponent(id));
+  }
+  function printProfile(id) {
+    const m = memberById[id], { mine, s } = memberStats(id);
+    $("printArea").innerHTML = `<h1>${esc(m.name)} 연구 업적</h1><div>${esc([m.en, m.pos, m.hosp, m.orcid ? "ORCID " + m.orcid : ""].filter(Boolean).join(" · "))}</div>
+      <div>${esc(D.meta.title)} · ${years[0]}–${years[years.length - 1]} · ${D.meta.basis === "print" ? "인쇄일" : "온라인 출판일"} 기준 · 확정 ${esc(D.meta.confirmed || "")}</div>
+      <table class="sum"><thead><tr><th>연도</th><th class="num">전체</th><th class="num">주저자</th><th class="num">공저자</th></tr></thead><tbody>
+      ${years.map(y => { const v = s.y[y] || { main: 0, co: 0 }; return `<tr><td>${y}</td><td class="num">${v.main + v.co}</td><td class="num">${v.main}</td><td class="num">${v.co}</td></tr>`; }).join("")}
+      <tr><td><b>합계</b></td><td class="num"><b>${s.n}</b></td><td class="num">${s.main}</td><td class="num">${s.n - s.main}</td></tr></tbody></table>
+      <table><thead><tr><th class="nw">날짜</th><th class="nw">역할</th><th>제목</th><th>학술지</th><th class="nw">유형</th></tr></thead><tbody>
+      ${mine.map(({ p, me }) => `<tr><td class="nw">${esc(p.d)}</td><td class="nw">${esc(me.role || "공저자")}${me.pos ? ` (${me.pos}/${p.n})` : ""}</td><td>${esc(p.t)}</td><td>${esc(p.j)}</td><td class="nw">${esc(p.kind || "학술지")}</td></tr>`).join("")}</tbody></table>`;
+    document.body.classList.add("pp");
+    const done = () => { document.body.classList.remove("pp"); window.removeEventListener("afterprint", done); };
+    window.addEventListener("afterprint", done);
+    window.print();
+  }
+  $("prof").addEventListener("click", async e => {
+    if (e.target === $("prof")) { $("prof").close(); return; }   // 바깥(배경) 누르면 닫기
+    const b = e.target.closest("[data-pa]"); if (!b) return;
+    const id = $("prof").dataset.id;
+    if (b.dataset.pa === "close") $("prof").close();
+    else if (b.dataset.pa === "filter") { st.member = id; $("fMember").value = id; st.shown = 40; $("prof").close(); render(); }
+    else if (b.dataset.pa === "print") printProfile(id);
+    else if (b.dataset.pa === "link") { try { await navigator.clipboard.writeText(location.href); toast("이 프로필 링크를 복사했습니다"); } catch { toast(location.href); } }
+  });
+  $("prof").addEventListener("close", () => history.replaceState(null, "", location.pathname + location.search));
+  document.addEventListener("click", e => { const b = e.target.closest("[data-prof]"); if (b) { e.preventDefault(); openProfile(b.dataset.prof); } });
+
+  // ---------- 전체 그리기
+  let current = [];
+  function render() {
+    const noYear = sliceNoYear(), slice = noYear.filter(x => yearOk(x.p));
+    current = slice;
+    const n = slice.length;
+    const first = slice.filter(x => x.ms.some(m => isFirst(m.role))).length, corr = slice.filter(x => x.ms.some(m => isCorr(m.role))).length;
+    const jour = slice.filter(x => x.p.kind === "학술지").length, fresh = slice.filter(x => x.p.new).length;
+    const allN = D.papers.filter(p => paperOk(p) && yearOk(p) && p.m.some(m => (!st.member || m.id === st.member) && (!st.hosp || m.h === st.hosp))).length;
+    const period = st.year ? `${st.year}년` : `${years[0]}–${years[years.length - 1]}`;
+    const kpi = (l, v, d, lead) => `<div class="kpi${lead ? " lead" : ""}"><div class="l">${esc(l)}</div><div class="v">${v.toLocaleString()}</div><div class="d">${esc(d)}</div></div>`;
+    $("kpis").innerHTML = kpi(basis(), n, st.role ? `${period} · 전체 ${allN}편 중` : `${period} · 중복 제거`, true)
+      + kpi("제1저자 논문", first, "공동 제1저자 포함")
+      + kpi("교신저자 논문", corr, period)
+      + kpi("학술지 논문", jour, `${basis()} 중 학술지`)
+      + kpi("새로 게시", fresh, "최근 7일");
+    renderMembers();
+    renderPace(noYear);
+    const cslice = D.papers.filter(p => paperOk(p) && yearOk(p)).map(p => ({ p, ms: p.m.filter(m => roleOk(m.role)) })).filter(x => x.ms.length);
+    renderCompare(cslice);
+    renderFeed(slice);
+    const nslice = D.papers.filter(p => paperOk(p) && yearOk(p));
+    renderNet(nslice);
+    renderMatrix(nslice);
+    renderYear(noYear);
+    const hc = {}; slice.forEach(({ ms }) => new Set(ms.map(m => m.h || "소속 병원 미표기")).forEach(h => hc[h] = (hc[h] || 0) + 1));
+    $("hospNote").textContent = `${basis()} · 교실원 현재 병원 기준 · 한 논문은 병원마다 한 번`;
+    hbars($("hosp"), Object.entries(hc).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "ko")), "hosp");
+    renderKind(slice);
+    const jc = {}; slice.forEach(({ p }) => { if (p.j) jc[p.j] = (jc[p.j] || 0) + 1; });
+    $("jourNote").textContent = `${basis()} · 상위 8`;
+    hbars($("jour"), Object.entries(jc).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 8), "jour");
+    $("listCount").textContent = `${basis()} ${n}편 · 최신순`;
+    $("list").innerHTML = n ? slice.slice(0, st.shown).map(x => paperHTML(x.p, x.ms)).join("") : `<div class="empty">조건에 맞는 논문이 없습니다</div>`;
+    $("btnMore").hidden = n <= st.shown;
+  }
+  $("btnMore").onclick = () => { st.shown += 100; render(); };
+
+  // ---------- CSV
+  $("btnCsv").onclick = () => {
+    const q = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const lines = [["교실원", "역할", "연도", "유형", "제목", "저널", "날짜", "저자순위", "병원", "PMID", "DOI"].map(q).join(",")];
+    current.forEach(({ p, ms }) => ms.forEach(m => lines.push([memberById[m.id]?.name || m.id, m.role, p.y, p.kind, p.t, p.j, p.d, m.pos ? `${m.pos}/${p.n}` : "", m.h, p.pmid, p.doi].map(q).join(","))));
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob(["﻿" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" }));
+    a.download = `연구업적_${ROLE_NOUN[st.role]}_${st.year || "전체연도"}.csv`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
+
+  // ---------- 의견 보내기 (관리자에게)
+  let target = null;
+  function openDialog(p) {
+    target = p;
+    $("dlgTitle").textContent = p ? "이 논문에 대한 의견" : "의견 보내기";
+    $("dlgPaper").textContent = p ? p.t : "빠진 논문이나 고칠 점을 관리자에게 알려 주세요.";
+    $("refBox").hidden = !!p;
+    const def = p ? "교실원 논문이 아님" : "누락된 논문";
+    document.querySelectorAll("input[name=kind]").forEach(r => { r.checked = r.value === def; r.closest("label").hidden = !!p && r.value === "누락된 논문"; });
+    const opts = p ? p.m.map(m => m.id) : D.members.map(m => m.id);
+    $("dlgMember").innerHTML = (p ? "" : `<option value="">선택 (해당 없으면 비워 두세요)</option>`) + opts.map(id => `<option value="${esc(id)}">${esc(memberById[id]?.name || id)}</option>`).join("");
+    if (!p && st.member) $("dlgMember").value = st.member;
+    $("dlgDetail").value = ""; $("dlgRef").value = "";
+    $("dlgNote").hidden = server; $("dlgSend").disabled = !server;
+    $("dlg").showModal();
+  }
+  $("list").onclick = e => { const b = e.target.closest("button.report"); if (b) openDialog(D.papers.find(p => p.k === b.dataset.k)); };
+  $("btnFeedback").onclick = () => openDialog(null);
+  $("profBody").addEventListener("click", e => { const b = e.target.closest("button.report"); if (b) openDialog(D.papers.find(p => p.k === b.dataset.k)); });
+  $("dlgForm").addEventListener("submit", async e => {
+    if (e.submitter?.value !== "send") return;
+    e.preventDefault();
+    const p = target, kind = document.querySelector("input[name=kind]:checked")?.value || "기타 의견";
+    if (!p && kind === "누락된 논문" && !$("dlgRef").value.trim()) { toast("빠진 논문의 DOI·PMID·제목을 적어 주세요"); $("dlgRef").focus(); return; }
+    if (!$("dlgDetail").value.trim() && !(p || $("dlgRef").value.trim())) { toast("내용을 적어 주세요"); $("dlgDetail").focus(); return; }
+    const body = { kind, member: $("dlgMember").value, key: p ? p.k : "", title: p ? p.t : $("dlgRef").value,
+      pmid: p ? p.pmid : "", doi: p ? p.doi : "", detail: $("dlgDetail").value, reporter: $("dlgWho").value, contact: $("dlgContact").value };
+    $("dlgSend").disabled = true;
+    try {
+      const r = await fetch("/api/report", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.ok) throw new Error(j.error || r.status);
+      $("dlg").close(); toast("관리자에게 전달했습니다. 감사합니다.");
+    } catch (err) { toast("보내지 못했습니다: " + err.message); }
+    finally { $("dlgSend").disabled = !server; }
+  });
+  function toast(msg) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("show"), 2800); }
+
+  fetch("/api/ping").then(r => r.ok && r.json()).then(j => { server = !!(j && j.ok); }).catch(() => { server = false; });
+  let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(render, 150); });
+  render();
+  const hm = location.hash.match(/^#m=(.+)$/);
+  if (hm && memberById[decodeURIComponent(hm[1])]) openProfile(decodeURIComponent(hm[1]));
+})();
+</script>
+</body>
+</html>
