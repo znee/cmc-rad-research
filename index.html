@@ -136,6 +136,7 @@ td.bar { width: 22%; min-width: 130px; }
 .thin span:last-child { border-radius: 0 5px 5px 0; }
 .thin span:only-child { border-radius: 5px; }
 .zero { color: var(--axis); }
+.mmore { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
 
 /* 논문 목록 */
 .listhead { display: flex; align-items: baseline; gap: 12px; margin: 26px 0 12px; flex-wrap: wrap; }
@@ -240,6 +241,7 @@ dialog .acts { display: flex; justify-content: flex-end; gap: 8px; margin-top: 1
 .net .lbl.hot { fill: var(--ink); font-weight: 600; }
 .net .lbl.me { fill: var(--ink); font-weight: 750; stroke-width: 5px; }
 .net .elbl { font-size: 12.5px; font-weight: 700; fill: var(--ink); paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; pointer-events: none; }
+.net .ln.one { opacity: .28; }
 .net.focus .ln { opacity: .08; } .net.focus .ln.hot { opacity: 1; stroke: var(--ink2); }
 .net.focus g.n { opacity: .18; } .net.focus g.n.hot { opacity: 1; }
 .net g.n.me .nd { stroke: var(--ink); stroke-width: 2.5; }
@@ -344,6 +346,7 @@ dialog#prof { overflow-x: hidden; }
     <div class="chead"><h2>교실원별</h2><span class="cs" id="mNote"></span></div>
     <div class="legend" id="mLegend"><span><i style="background:var(--main)"></i>주저자 (제1·교신)</span><span><i style="background:var(--co)"></i>공저자</span></div>
     <div class="tablebox"><table id="mTable"><thead><tr id="mHead"></tr></thead><tbody id="mBody"></tbody></table></div>
+    <div class="mmore"><button class="btn small" id="mMore" type="button" hidden></button><span class="cs" id="mHidden"></span></div>
   </section>
 
   <div class="grid2">
@@ -379,7 +382,7 @@ dialog#prof { overflow-x: hidden; }
 
   <section class="card netcard" id="netCard">
     <div class="chead"><h2>공동연구 네트워크</h2><span class="cs" id="netNote"></span>
-      <label class="cs"><input type="checkbox" id="netAll"> 1편짜리 연결도 보기</label><button class="tv" id="netFull" type="button">크게 보기</button><button class="tv" data-for="net">표로 보기</button></div>
+      <label class="cs"><input type="checkbox" id="netStrong"> 2편 이상 연결만</label><button class="tv" id="netFull" type="button">크게 보기</button><button class="tv" data-for="net">표로 보기</button></div>
     <div class="legend" id="netLegend"></div>
     <div class="net" id="net"></div>
   </section>
@@ -472,7 +475,7 @@ dialog#prof { overflow-x: hidden; }
   $("foot").innerHTML = `주저자 = 제1저자(공동 제1저자 포함) 또는 교신저자. 저자 목록(byline)에 이름이 있는 논문만 셉니다(컨소시엄·공동연구자 명단 제외).<br>
     규칙으로 확실하게 확인됐거나 관리자가 확인한 논문만 게시합니다${D.meta.pending ? ` (확인 중 ${D.meta.pending}건은 아직 미게시)` : ""}. 정오표·철회·프리프린트는 제외합니다.<br>
     출처: PubMed · OpenAlex · ORCID. 빠진 논문이나 잘못된 내용은 '의견 보내기'나 각 논문의 '오류 신고'로 관리자에게 알려 주세요.<br>
-    교실원 이름을 누르면 프로필(연도별 실적·함께 쓴 교실원·업적표 인쇄)이 열립니다. · 대시보드 v0.2.1`;
+    교실원 이름을 누르면 프로필(연도별 실적·함께 쓴 교실원·업적표 인쇄)이 열립니다. · 대시보드 v0.2.2`;
 
   // ---------- 필터
   function segment(el, items, key) {
@@ -568,6 +571,8 @@ dialog#prof { overflow-x: hidden; }
   }
 
   // ---------- 교실원 표 (역할 기준에 따라 열이 바뀜)
+  let mAll = false;
+  $("mMore").addEventListener("click", () => { mAll = !mAll; renderMembers(); if (!mAll) $("mTable").scrollIntoView({ block: "nearest" }); });
   function renderMembers() {
     const all = st.role === "";
     const cols = all ? [["n", "합계"], ["main", "주저자"], ["f", "제1저자"], ["c", "교신"], ["co", "공저자"]]
@@ -583,8 +588,15 @@ dialog#prof { overflow-x: hidden; }
     const rows = D.members.map(m => { const a = agg[m.id] || { y: {}, n: 0, main: 0, f: 0, c: 0 }; a.co = a.n - a.main; return { m, a }; })
       .sort((x, y) => y.a.n - x.a.n || y.a.f - x.a.f || x.m.name.localeCompare(y.m.name, "ko"));
     const max = Math.max(1, ...rows.map(r => r.a.n));
-    const cell = v => v ? v : `<span class="zero">0</span>`;
-    $("mBody").innerHTML = rows.map(({ m, a }) => {
+    const cell = v => v || "";   // 0은 비워 둔다
+    const has = rows.filter(r => r.a.n > 0 || r.m.id === st.member), TOP = 20;   // 이 조건에서 논문 없는 교실원은 뺀다
+    const shown = mAll ? has : has.filter((r, i) => i < TOP || r.m.id === st.member);
+    $("mMore").hidden = has.length <= TOP;
+    $("mMore").textContent = mAll ? `상위 ${TOP}명만 보기` : `나머지 ${has.length - TOP}명 더 보기`;
+    $("mMore").setAttribute("aria-expanded", mAll ? "true" : "false");
+    const none = rows.length - has.length;
+    $("mHidden").textContent = `${has.length}명${none ? ` · 이 조건에서 논문 없는 ${none}명은 표시하지 않음` : ""}`;
+    $("mBody").innerHTML = shown.map(({ m, a }) => {
       const w = a.n / max * 100;
       const tipTxt = all ? `${a.n}편\n${m.name}\n@main|주저자|${a.main}\n@co|공저자|${a.co}` : `${a.n}편\n${m.name} · ${basis()}`;
       const segs = all ? `${a.main ? `<span style="flex:${a.main} 1 0;background:var(--main)"></span>` : ""}${a.co ? `<span style="flex:${a.co} 1 0;background:var(--co)"></span>` : ""}`
@@ -777,7 +789,7 @@ dialog#prof { overflow-x: hidden; }
   const netCache = {};
   const NET = { view: { k: 1, tx: 0, ty: 0 }, key: "", pin: [], full: false, slice: [], apply: null };
   function forceLayout(nodes, links, W, H, rad) {
-    const n = nodes.length, ix = Object.fromEntries(nodes.map((d, i) => [d.id, i])), k = Math.sqrt(W * H / Math.max(n, 1)) * 0.66;
+    const n = nodes.length, ix = Object.fromEntries(nodes.map((d, i) => [d.id, i])), k = Math.sqrt(W * H / Math.max(n, 1)) * 0.82;
     nodes.forEach((d, i) => { const a = i * 2.39996, r = Math.sqrt((i + 0.5) / n) * Math.min(W, H) * 0.42; d.x = W / 2 + Math.cos(a) * r; d.y = H / 2 + Math.sin(a) * r; });
     const IT = 320, clamp = d => { d.x = Math.max(30, Math.min(W - 30, d.x)); d.y = Math.max(22, Math.min(H - 22, d.y)); };
     for (let it = 0; it < IT; it++) {
@@ -788,7 +800,7 @@ dialog#prof { overflow-x: hidden; }
         const f = k * k / d; ex /= d; ey /= d; dx[i] += ex * f; dy[i] += ey * f; dx[j] -= ex * f; dy[j] -= ey * f; }
       links.forEach(l => { const a = ix[l.a], b = ix[l.b]; let ex = nodes[a].x - nodes[b].x, ey = nodes[a].y - nodes[b].y; const d = Math.hypot(ex, ey) || 0.01,
         f = d * d / k * Math.min(1 + Math.log(l.v), 3); ex /= d; ey /= d; dx[a] -= ex * f; dy[a] -= ey * f; dx[b] += ex * f; dy[b] += ey * f; });
-      nodes.forEach((d, i) => { dx[i] += (W / 2 - d.x) * 0.5; dy[i] += (H / 2 - d.y) * 0.5 * (W / H);
+      nodes.forEach((d, i) => { dx[i] += (W / 2 - d.x) * 0.32; dy[i] += (H / 2 - d.y) * 0.32 * (W / H);
         const len = Math.hypot(dx[i], dy[i]) || 1; d.x += dx[i] / len * Math.min(len, temp); d.y += dy[i] / len * Math.min(len, temp); clamp(d); });
     }
     for (let pass = 0; pass < 80; pass++) {   // 점끼리 겹치지 않게 밀어내기
@@ -833,7 +845,7 @@ dialog#prof { overflow-x: hidden; }
   }
   function renderNet(nslice) {
     NET.slice = nslice;
-    const all = $("netAll").checked, minW = all ? 1 : 2;
+    const minW = $("netStrong").checked ? 2 : 1;   // 기본: 함께 쓴 논문 1편이라도 있으면 잇는다(1편 선은 가늘고 옅게)
     const { cnt, links, all: allPairs } = netGraph(nslice, minW);
     renderPairs(allPairs);
     const ids = [...new Set(links.flatMap(l => [l.a, l.b]))].sort((a, b) => (cnt[b] - cnt[a]) || a.localeCompare(b));
@@ -842,7 +854,7 @@ dialog#prof { overflow-x: hidden; }
     const alone = Object.keys(cnt).length - ids.length;
     $("netNote").textContent = `연도·유형·검색 필터 적용 · 함께 쓴 논문 ${minW}편 이상 · 교실원 ${ids.length}명${alone ? ` (연결 없는 ${alone}명 생략)` : ""}`;
     $("netLegend").innerHTML = Object.entries(HOSP_VAR).map(([h, v]) => `<span><i style="background:var(--${v});border-radius:50%"></i>${esc(h)}</span>`).join("") +
-      `<span><i style="background:var(--other);border-radius:50%"></i>그 외 병원</span><span>점 크기 = 논문 수 · 선 굵기 = 함께 쓴 논문 수</span>`;
+      `<span><i style="background:var(--other);border-radius:50%"></i>그 외 병원</span><span>점 크기 = 논문 수 · 선 굵기 = 함께 쓴 논문 수 (1편은 옅은 선)</span>`;
     $("netFull").hidden = !!tview.net;
     if (tview.net) {
       const pairs = links.slice().sort((a, b) => b.v - a.v).slice(0, 40);
@@ -853,11 +865,13 @@ dialog#prof { overflow-x: hidden; }
     const box = $("net");
     const W = Math.max(320, box.clientWidth || 700);
     const H = NET.full ? Math.max(360, Math.round(window.innerHeight - box.getBoundingClientRect().top - 70)) : Math.round(Math.min(660, Math.max(420, W * 0.56)));
-    const R = id => Math.min(17, 5 + 1.9 * Math.sqrt(cnt[id]));
+    const R = id => Math.min(13, 3.2 + 1.55 * Math.sqrt(cnt[id]));   // 평소엔 작게, 올리면 2배
     const key = `${W}|${H}|${minW}|${links.map(l => l.a + l.b + l.v).join(",")}`;
     let nodes = netCache[key];
     if (!nodes) { nodes = ids.map(id => ({ id })); forceLayout(nodes, links, W, H, R); netCache[key] = nodes; }
     if (NET.key !== key) { NET.key = key; NET.view = { k: 1, tx: 0, ty: 0 }; }
+    NET.stop?.();
+    nodes.forEach(d => { if (d.hx == null) { d.hx = d.x; d.hy = d.y; } d.x = d.hx; d.y = d.hy; d.vx = 0; d.vy = 0; d.s = 1; d.lp = null; });   // hx,hy = 제자리
     const P = Object.fromEntries(nodes.map(d => [d.id, d])), names = Object.fromEntries(ids.map(id => [id, mName(id)]));
     box.innerHTML = `<div class="netbar">
         <input type="search" class="netfind" list="netList" placeholder="교실원 찾기" aria-label="네트워크에서 교실원 찾기"><datalist id="netList">${ids.map(id => `<option value="${esc(names[id])}">`).join("")}</datalist>
@@ -865,7 +879,7 @@ dialog#prof { overflow-x: hidden; }
         <span class="nethint"><span class="m">점에 올리면 그 사람과 연결만 · 끌어서 이동 · Ctrl/⌘+휠로 확대 · 점을 끌어 옮기기 · 누르면 프로필</span><span class="t">점을 누르면 연결만 · 한 번 더 누르면 프로필 · ＋/－로 확대</span></span></div>
       <div class="netstage"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="교실원 공동연구 네트워크. 확대·이동할 수 있고, 점을 누르면 프로필이 열립니다">
         <rect class="bg" width="${W}" height="${H}" fill="transparent"/>
-        <g class="edges">${links.map(l => `<line class="ln" data-a="${esc(l.a)}" data-b="${esc(l.b)}" stroke-width="${Math.min(6, 1 + 0.7 * (l.v - 1)).toFixed(1)}"/>`).join("")}</g>
+        <g class="edges">${links.map(l => `<line class="ln${l.v === 1 ? " one" : ""}" data-a="${esc(l.a)}" data-b="${esc(l.b)}" stroke-width="${Math.min(6, 1 + 0.7 * (l.v - 1)).toFixed(1)}"/>`).join("")}</g>
         <g class="nodes">${nodes.map(d => { const m = memberById[d.id] || {}, nbs = nb[d.id] || [];
           return `<g class="n" data-id="${esc(d.id)}" tabindex="0" role="button" aria-label="${esc(`${m.name || d.id}, 논문 ${cnt[d.id]}편, 함께 쓴 교실원 ${nbs.length}명. Enter로 프로필`)}">
             <circle class="hit" r="${Math.max(R(d.id) + 7, 14)}" fill="transparent"/><circle class="nd" r="${R(d.id).toFixed(1)}" style="fill:var(--${hospVar(m.hosp)})"/></g>`; }).join("")}</g>
@@ -882,7 +896,8 @@ dialog#prof { overflow-x: hidden; }
       else info.innerHTML = `<b>${F.map(id => esc(names[id])).join(" · ")}</b> · 함께 쓴 논문 ${pairV(F[0], F[1])}편`;
       info.hidden = false;
     }
-    let hover = "", raf = 0;
+    let hover = "", raf = 0, dragId = "";
+    const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const V = () => NET.view;
     const scr = d => [d.x * V().k + V().tx, d.y * V().k + V().ty];
     const rS = id => R(id) * Math.min(1.8, Math.pow(V().k, 0.4));
@@ -891,34 +906,61 @@ dialog#prof { overflow-x: hidden; }
     const hotEdge = (l, F) => F.length === 1 ? (l.a === F[0] || l.b === F[0]) : F.length >= 2 && F.includes(l.a) && F.includes(l.b);
     const hitRC = (b, c) => { const x = Math.max(b.x0, Math.min(c.x, b.x1)), y = Math.max(b.y0, Math.min(c.y, b.y1)); return (c.x - x) ** 2 + (c.y - y) ** 2 < c.r * c.r; };
     const hitRR = (b, p) => !(b.x1 < p.x0 || b.x0 > p.x1 || b.y1 < p.y0 || b.y0 > p.y1);
+    // 살아 있는 배치: 제자리로 당기는 힘 + 초점 사람 쪽으로 이웃 모으기 + 관계없는 점 비키기 + 커진 점이 밀어내는 충돌
+    function tick() {
+      const F = focusIds(), keep = keepOf(F), k = V().k, zf = Math.min(1.8, Math.pow(k, 0.4)), live = hover || dragId;
+      let e = 0;
+      nodes.forEach(d => { const ts = F.includes(d.id) ? (live ? 2 : 1.7) : (F.length && keep.has(d.id) ? 1.2 : 1);
+        d.s += (ts - d.s) * (RM ? 1 : 0.2); e += Math.abs(ts - d.s); });
+      if (RM) return e > 0.01;
+      const rad = d => R(d.id) * zf * d.s / k, fixed = d => d.id === dragId || (F.length === 1 && d.id === F[0]);
+      nodes.forEach(d => { d.vx += (d.hx - d.x) * 0.06; d.vy += (d.hy - d.y) * 0.06; });
+      if (F.length === 1) {
+        const f = P[F[0]], fr = rad(f);
+        nodes.forEach(d => { if (d === f) return; let ex = d.x - f.x, ey = d.y - f.y; const dist = Math.hypot(ex, ey) || 0.01; ex /= dist; ey /= dist;
+          if (keep.has(d.id)) { const L = fr + rad(d) + 40 / k; if (dist > L) { d.vx -= ex * (dist - L) * 0.035; d.vy -= ey * (dist - L) * 0.035; } }
+          else { const Rp = fr + 95 / k; if (dist < Rp) { d.vx += ex * (Rp - dist) * 0.05; d.vy += ey * (Rp - dist) * 0.05; } } });
+      }
+      for (let i = 0; i < nodes.length; i++) for (let j = i + 1; j < nodes.length; j++) {
+        const a = nodes[i], b = nodes[j], min = rad(a) + rad(b) + 8 / k; let ex = b.x - a.x, ey = b.y - a.y; const dd = Math.hypot(ex, ey) || 0.01;
+        if (dd >= min) continue;
+        const fa = fixed(a) ? 0 : 1, fb = fixed(b) ? 0 : 1, t = fa + fb; if (!t) continue;
+        const o = (min - dd) * 0.5 / dd; a.x -= ex * o * fa / t * 2; a.y -= ey * o * fa / t * 2; b.x += ex * o * fb / t * 2; b.y += ey * o * fb / t * 2; e += min - dd;
+      }
+      nodes.forEach(d => { if (fixed(d) && d.id === dragId) { d.vx = d.vy = 0; return; } d.vx *= 0.72; d.vy *= 0.72; d.x += d.vx; d.y += d.vy; e += Math.abs(d.vx) + Math.abs(d.vy); });
+      return e > 0.03;
+    }
+    function frame() { const moving = tick(); draw(); raf = moving ? requestAnimationFrame(frame) : 0; }
+    NET.stop = () => { cancelAnimationFrame(raf); raf = 0; };
     function draw() {
-      raf = 0;
       const F = focusIds(), keep = keepOf(F), pos = {};
       nodes.forEach(d => pos[d.id] = scr(d));
-      gN.forEach(g => { const id = g.dataset.id, [x, y] = pos[id];
+      gN.forEach(g => { const id = g.dataset.id, [x, y] = pos[id], r = rS(id) * P[id].s;
         g.setAttribute("transform", `translate(${x.toFixed(1)},${y.toFixed(1)})`);
-        g.lastElementChild.setAttribute("r", (rS(id) * (F.includes(id) ? 1.35 : 1)).toFixed(1)); });
+        g.firstElementChild.setAttribute("r", Math.max(r + 7, 14).toFixed(1)); g.lastElementChild.setAttribute("r", r.toFixed(1)); });
       gE.forEach(l => { const a = pos[l.dataset.a], b = pos[l.dataset.b];
         l.setAttribute("x1", a[0].toFixed(1)); l.setAttribute("y1", a[1].toFixed(1)); l.setAttribute("x2", b[0].toFixed(1)); l.setAttribute("y2", b[1].toFixed(1)); });
       // 이름표: 초점 > 이웃(함께 쓴 논문 많은 순) > 나머지(논문 많은 순). 8방향 중 다른 이름표·점과 안 겹치는 자리에만 놓고, 없으면 숨긴다.
       const nbw = {}; if (F.length === 1) (nb[F[0]] || []).forEach(([o, v]) => nbw[o] = v);
-      const circ = nodes.map(d => ({ id: d.id, x: pos[d.id][0], y: pos[d.id][1], r: rS(d.id) * (F.includes(d.id) ? 1.35 : 1) + 2 }));
+      const circ = nodes.map(d => ({ id: d.id, x: pos[d.id][0], y: pos[d.id][1], r: rS(d.id) * d.s + 2 }));
       const cmap = Object.fromEntries(circ.map(c => [c.id, c]));
       const order = ids.slice().sort((a, b) => (F.includes(b) - F.includes(a)) || (keep.has(b) - keep.has(a)) || ((nbw[b] || 0) - (nbw[a] || 0)) || (cnt[b] - cnt[a]));
       const placed = [], out = [], fm = F.length > 0;
       for (const id of order) {
         if (fm && !keep.has(id)) continue;
-        const me = F.includes(id), size = me ? 16 : fm ? 14 : 13, t = names[id];
+        const me = F.includes(id), size = me ? 17 : fm ? 14 : 13, t = names[id];
         const w = measure(t, size) * (me ? 1.1 : fm ? 1.05 : 1.02) + 6, h = size + 5, c = cmap[id], r = c.r + 2, q = r * 0.72;
         const cands = [[c.x + r, c.y - h / 2], [c.x - r - w, c.y - h / 2], [c.x - w / 2, c.y - r - h], [c.x - w / 2, c.y + r],
           [c.x + q, c.y - q - h], [c.x - q - w, c.y - q - h], [c.x + q, c.y + q], [c.x - q - w, c.y + q]];
         let pick = null;
-        for (const [x0, y0] of cands) {
+        const nd = P[id], tryOrder = nd.lp != null ? [nd.lp, ...cands.keys()] : [...cands.keys()];   // 지난번 자리부터(이름표가 깜빡이지 않게)
+        for (const ci of tryOrder) {
+          const [x0, y0] = cands[ci];
           const bx = { x0, y0, x1: x0 + w, y1: y0 + h };
           if (bx.x0 < 2 || bx.y0 < 2 || bx.x1 > W - 2 || bx.y1 > H - 2) continue;
           if (placed.some(p => hitRR(bx, p))) continue;
           if (circ.some(o => o.id !== id && (!fm || keep.has(o.id)) && hitRC(bx, o))) continue;
-          pick = bx; break;
+          pick = bx; nd.lp = ci; break;
         }
         if (!pick && me) { const x0 = Math.min(W - w - 2, Math.max(2, cands[0][0])), y0 = Math.min(H - h - 2, Math.max(2, cands[0][1])); pick = { x0, y0, x1: x0 + w, y1: y0 + h }; }
         if (!pick) continue;
@@ -935,14 +977,14 @@ dialog#prof { overflow-x: hidden; }
         placed.push(bx); eo.push(`<text class="elbl" x="${x.toFixed(1)}" y="${(y + 4.5).toFixed(1)}" text-anchor="middle">${l.v}</text>`); });
       layE.innerHTML = eo.join("");
     }
-    const sched = () => { if (!raf) raf = requestAnimationFrame(draw); };
+    const sched = () => { if (!raf) raf = requestAnimationFrame(frame); };
     function apply(center) {
       const F = focusIds(), keep = keepOf(F), act = document.activeElement;
       box.classList.toggle("focus", F.length > 0);
       showInfo(F);
       gN.forEach(g => { g.classList.toggle("hot", keep.has(g.dataset.id)); g.classList.toggle("me", F.includes(g.dataset.id)); });
       gE.forEach(l => l.classList.toggle("hot", hotEdge({ a: l.dataset.a, b: l.dataset.b }, F)));
-      F.forEach(id => { const g = nodeEl[id]; if (g && g !== act && !g.contains(act)) g.parentNode.appendChild(g); });   // 초점 점을 맨 위로
+      if (!hover) F.forEach(id => { const g = nodeEl[id]; if (g && g !== act && !g.contains(act)) g.parentNode.appendChild(g); });   // 고정한 점만 맨 위로(올려 둔 점을 옮기면 pointerout이 나서 강조가 풀림)
       if (center && F.length) {   // 찾기·쌍 선택: 그 사람(들)을 가운데로
         const v = V(), cx = F.reduce((s, id) => s + P[id].x, 0) / F.length, cy = F.reduce((s, id) => s + P[id].y, 0) / F.length;
         v.k = Math.max(v.k, 1.4); v.tx = W / 2 - cx * v.k; v.ty = H / 2 - cy * v.k;
@@ -967,8 +1009,9 @@ dialog#prof { overflow-x: hidden; }
       if (drag.pinch != null) { if (ptrs.size === 2) { const [a, b] = [...ptrs.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]); zoomAt(d / drag.pinch, (a[0] + b[0]) / 2, (a[1] + b[1]) / 2); drag.pinch = d; } return; }
       const dx = p[0] - drag.last[0], dy = p[1] - drag.last[1]; drag.last = p;
       if (!drag.moved && Math.hypot(p[0] - drag.start[0], p[1] - drag.start[1]) < 5) return;
+      if (!drag.moved && drag.id) { dragId = drag.id; hover = drag.id; apply(); }
       drag.moved = true; box.classList.add("dragging"); tip.hidden = true;
-      if (drag.id) { const d = P[drag.id]; d.x += dx / V().k; d.y += dy / V().k; } else { V().tx += dx; V().ty += dy; }
+      if (drag.id) { const d = P[drag.id]; d.x += dx / V().k; d.y += dy / V().k; d.hx = d.x; d.hy = d.y; } else { V().tx += dx; V().ty += dy; }
       sched();
     });
     const up = e => {
@@ -976,6 +1019,7 @@ dialog#prof { overflow-x: hidden; }
       const d = drag; if (!d) return;
       if (d.pinch != null) { if (!ptrs.size) drag = null; return; }
       drag = null;
+      if (dragId) { dragId = ""; if (e.pointerType !== "mouse") hover = ""; apply(); }
       if (d.moved || e.type === "pointercancel") return;
       if (d.id) {   // 마우스: 누르면 프로필. 터치: 처음엔 연결만 보이고 한 번 더 누르면 프로필
         if (d.type === "mouse" || (NET.pin.length === 1 && NET.pin[0] === d.id)) openProfile(d.id); else { NET.pin = [d.id]; hover = ""; apply(); }
@@ -983,7 +1027,9 @@ dialog#prof { overflow-x: hidden; }
     };
     svg.addEventListener("pointerup", up); svg.addEventListener("pointercancel", up);
     svg.addEventListener("pointerover", e => { if (drag?.moved || e.pointerType !== "mouse") return; const g = e.target.closest("g.n"); if (g && hover !== g.dataset.id) { hover = g.dataset.id; apply(); } });
-    svg.addEventListener("pointerout", e => { if (drag?.moved || !hover) return; if (!e.relatedTarget?.closest?.("g.n")) { hover = ""; apply(); } });
+    svg.addEventListener("pointerout", e => { if (drag?.moved || !hover) return;
+      if (document.elementFromPoint(e.clientX, e.clientY)?.closest?.("g.n")?.dataset.id === hover) return;
+      const to = e.relatedTarget?.closest?.("g.n"); if (!to) { hover = ""; apply(); } });
     svg.addEventListener("wheel", e => { if (!(e.ctrlKey || e.metaKey || NET.full)) return; e.preventDefault(); const [x, y] = pt(e); zoomAt(Math.exp(-e.deltaY * 0.0025), x, y); }, { passive: false });
     svg.addEventListener("dblclick", e => { if (e.target.closest("g.n")) return; const [x, y] = pt(e); zoomAt(1.6, x, y); });
     gN.forEach(g => { g.addEventListener("focus", () => { hover = g.dataset.id; apply(); }); g.addEventListener("blur", () => { if (hover === g.dataset.id) { hover = ""; apply(); } });
@@ -999,7 +1045,7 @@ dialog#prof { overflow-x: hidden; }
     find.addEventListener("keydown", e => { if (e.key === "Enter") { doFind(); e.preventDefault(); } if (e.key === "Escape") { find.value = ""; NET.pin = []; apply(); } });
     apply();
   }
-  $("netAll").addEventListener("change", () => render());
+  $("netStrong").addEventListener("change", () => render());
   function netFull(on) {
     NET.full = on; $("netCard").classList.toggle("netfull", on); document.body.classList.toggle("noscroll", on);
     $("netFull").textContent = on ? "작게 보기" : "크게 보기"; renderNet(NET.slice);
