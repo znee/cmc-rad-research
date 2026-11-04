@@ -584,13 +584,15 @@ dialog#prof { overflow-x: hidden; }
   $("mMore").addEventListener("click", () => { mAll = !mAll; renderMembers(); if (!mAll) $("mTable").scrollIntoView({ block: "nearest" }); });
   let mLeftOn = false;   // 교실원별 표: 퇴사자는 기본으로 빼고, 버튼으로 넣는다
   $("mLeft").addEventListener("click", () => { mLeftOn = !mLeftOn; renderMembers(); });
+  // 교실원별 표의 연도 칸: 기간이 길어져도 넓어지지 않게 최근 7년만 따로, 그 앞은 한 칸(~연도)으로 합친다
+  const YCOLS = 7, RECENT = years.length > YCOLS ? years.slice(-(YCOLS - 1)) : years, OLD = years.length > YCOLS ? years.slice(0, -(YCOLS - 1)) : [];
   function renderMembers() {
     const all = st.role === "";
     const cols = all ? [["n", "합계"], ["main", "주저자"], ["f", "제1저자"], ["c", "교신"], ["co", "공저자"]]
       : st.role === "main" ? [["n", "주저자 합계"], ["f", "제1저자"], ["c", "교신"]] : [["n", `${ROLE_NOUN[st.role]} 합계`]];
     $("mLegend").hidden = !all;
     $("mNote").textContent = `${basis()} 기준 · 많은 순 · 이름을 누르면 프로필, 행을 누르면 그 교실원만 봅니다`;
-    $("mHead").innerHTML = `<th class="l">교실원</th><th class="l">병원</th><th class="l">${all ? "주저자 · 공저자" : basis()}</th>${years.map(y => `<th>${y}</th>`).join("")}${cols.map(([k, l], i) => `<th class="${i ? "" : "hi"}">${esc(l)}</th>`).join("")}`;
+    $("mHead").innerHTML = `<th class="l">교실원</th><th class="l">병원</th><th class="l">${all ? "주저자 · 공저자" : basis()}</th>${OLD.length ? `<th title="${OLD[0]}–${OLD[OLD.length - 1]}년 합">~${OLD[OLD.length - 1]}</th>` : ""}${RECENT.map(y => `<th>${y}</th>`).join("")}${cols.map(([k, l], i) => `<th class="${i ? "" : "hi"}">${esc(l)}</th>`).join("")}`;
     const agg = {};
     D.papers.forEach(p => { if (!paperOk(p) || !yearOk(p)) return; p.m.forEach(m => {
       if ((st.hosp && m.h !== st.hosp) || !roleOk(m.role)) return;   // 교실원 선택은 강조만
@@ -618,7 +620,7 @@ dialog#prof { overflow-x: hidden; }
       const bar = a.n ? `<div class="thin" tabindex="0" style="width:${w}%" data-tip="${esc(tipTxt)}">${segs}</div>` : "";
       return `<tr data-id="${esc(m.id)}" class="${st.member === m.id ? "sel" : ""}">
         <td class="l"><button class="mname" data-prof="${esc(m.id)}" title="프로필 보기">${esc(m.name)}</button><span class="en">${esc(m.en)}</span>${m.left ? `<span class="en">· ${esc(m.left)} 퇴사</span>` : ""}</td><td class="l">${esc(m.hosp)}</td><td class="l bar">${bar}</td>
-        ${years.map(y => `<td>${cell(a.y[y])}</td>`).join("")}${cols.map(([k], i) => `<td class="${i ? "" : "hi"}">${cell(a[k])}</td>`).join("")}</tr>`; }).join("");
+        ${OLD.length ? `<td>${cell(OLD.reduce((t, y) => t + (a.y[y] || 0), 0))}</td>` : ""}${RECENT.map(y => `<td>${cell(a.y[y])}</td>`).join("")}${cols.map(([k], i) => `<td class="${i ? "" : "hi"}">${cell(a[k])}</td>`).join("")}</tr>`; }).join("");
   }
   $("mBody").onclick = e => { if (e.target.closest("[data-prof]")) return; const tr = e.target.closest("tr"); if (!tr) return;
     st.member = st.member === tr.dataset.id ? "" : tr.dataset.id; $("fMember").value = st.member; st.shown = 40; render(); };
