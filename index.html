@@ -346,24 +346,47 @@ dialog#prof { overflow-x: hidden; }
 
   <div class="kpis" id="kpis"></div>
 
-  <section class="card full">
-    <div class="chead"><h2>교실원별</h2><span class="cs" id="mNote"></span><button class="tv" id="mLeft" type="button" aria-pressed="false" hidden>퇴사자 포함</button></div>
-    <div class="legend" id="mLegend"><span><i style="background:var(--main)"></i>주저자 (제1·교신)</span><span><i style="background:var(--co)"></i>공저자</span></div>
-    <div class="tablebox"><table id="mTable"><thead><tr id="mHead"></tr></thead><tbody id="mBody"></tbody></table></div>
-    <div class="mmore"><button class="btn small" id="mMore" type="button" hidden></button><span class="cs" id="mHidden"></span></div>
-  </section>
-
+  <!-- 순서: 전체 현황 → 공동연구 → 최근 논문·학술지 → 교실원별 표(상위 15명 · 전체는 가나다순) → 논문 목록 -->
   <div class="grid2">
+    <section class="card">
+      <div class="chead"><h2>연도별 논문</h2><span class="cs" id="yearNote"></span><button class="tv" data-for="year">표로 보기</button></div>
+      <div class="legend"><span><i style="background:var(--s1)"></i>학술지</span><span><i style="background:var(--other)"></i>그 외 (학회논문·초록·도서)</span></div>
+      <div id="year"></div>
+    </section>
     <section class="card">
       <div class="chead"><h2>올해와 지난해</h2><span class="cs" id="paceNote"></span><button class="tv" data-for="pace">표로 보기</button></div>
       <div class="yoy" id="yoy"></div>
       <div class="legend" id="paceLegend"></div>
       <div id="pace"></div>
     </section>
+  </div>
+
+  <div class="grid2">
     <section class="card">
-      <div class="chead"><h2>누적 비교</h2><span class="cs" id="cmpNote"></span><button class="tv" data-for="cmp">표로 보기</button></div>
-      <div class="chips" id="cmpCtl"></div>
-      <div id="cmp"></div>
+      <div class="chead"><h2>병원별 논문</h2><span class="cs" id="hospNote"></span><button class="tv" data-for="hosp">표로 보기</button></div>
+      <div id="hosp"></div>
+    </section>
+    <section class="card">
+      <div class="chead"><h2>논문 유형</h2><span class="cs" id="kindNote"></span><button class="tv" data-for="kind">표로 보기</button></div>
+      <div id="kind"></div>
+    </section>
+  </div>
+
+  <section class="card netcard" id="netCard">
+    <div class="chead"><h2>공동연구 네트워크</h2><span class="cs" id="netNote"></span>
+      <label class="cs"><input type="checkbox" id="netStrong"> 2편 이상 연결만</label><button class="tv" id="netFull" type="button">크게 보기</button><button class="tv" data-for="net">표로 보기</button></div>
+    <div class="legend" id="netLegend"></div>
+    <div class="net" id="net"></div>
+  </section>
+
+  <div class="grid2">
+    <section class="card">
+      <div class="chead"><h2>병원 간 협업</h2><span class="cs" id="mxNote"></span><button class="tv" data-for="mx">표로 보기</button></div>
+      <div id="mx"></div>
+    </section>
+    <section class="card">
+      <div class="chead"><h2>자주 함께 쓰는 교실원</h2><span class="cs" id="pairNote"></span><button class="tv" data-for="pairs">표로 보기</button></div>
+      <div id="pairs"></div>
     </section>
   </div>
 
@@ -374,43 +397,22 @@ dialog#prof { overflow-x: hidden; }
 
   <div class="grid2">
     <section class="card">
-      <div class="chead"><h2>연도별 논문</h2><span class="cs" id="yearNote"></span><button class="tv" data-for="year">표로 보기</button></div>
-      <div class="legend"><span><i style="background:var(--s1)"></i>학술지</span><span><i style="background:var(--other)"></i>그 외 (학회논문·초록·도서)</span></div>
-      <div id="year"></div>
-    </section>
-    <section class="card">
-      <div class="chead"><h2>병원별 논문</h2><span class="cs" id="hospNote"></span><button class="tv" data-for="hosp">표로 보기</button></div>
-      <div id="hosp"></div>
-    </section>
-  </div>
-
-  <section class="card netcard" id="netCard">
-    <div class="chead"><h2>공동연구 네트워크</h2><span class="cs" id="netNote"></span>
-      <label class="cs"><input type="checkbox" id="netStrong"> 2편 이상 연결만</label><button class="tv" id="netFull" type="button">크게 보기</button><button class="tv" data-for="net">표로 보기</button></div>
-    <div class="legend" id="netLegend"></div>
-    <div class="net" id="net"></div>
-  </section>
-  <div class="grid2">
-    <section class="card">
-      <div class="chead"><h2>자주 함께 쓰는 교실원</h2><span class="cs" id="pairNote"></span><button class="tv" data-for="pairs">표로 보기</button></div>
-      <div id="pairs"></div>
-    </section>
-    <section class="card">
-      <div class="chead"><h2>병원 간 협업</h2><span class="cs" id="mxNote"></span><button class="tv" data-for="mx">표로 보기</button></div>
-      <div id="mx"></div>
-    </section>
-  </div>
-
-  <div class="grid2">
-    <section class="card">
-      <div class="chead"><h2>논문 유형</h2><span class="cs" id="kindNote"></span><button class="tv" data-for="kind">표로 보기</button></div>
-      <div id="kind"></div>
-    </section>
-    <section class="card">
       <div class="chead"><h2>많이 실은 학술지</h2><span class="cs" id="jourNote"></span><button class="tv" data-for="jour">표로 보기</button></div>
       <div id="jour"></div>
     </section>
+    <section class="card">
+      <div class="chead"><h2>누적 비교</h2><span class="cs" id="cmpNote"></span><button class="tv" data-for="cmp">표로 보기</button></div>
+      <div class="chips" id="cmpCtl"></div>
+      <div id="cmp"></div>
+    </section>
   </div>
+
+  <section class="card full">
+    <div class="chead"><h2>교실원별</h2><span class="cs" id="mNote"></span><button class="tv" id="mLeft" type="button" aria-pressed="false" hidden>퇴사자 포함</button></div>
+    <div class="legend" id="mLegend"><span><i style="background:var(--main)"></i>주저자 (제1·교신)</span><span><i style="background:var(--co)"></i>공저자</span></div>
+    <div class="tablebox"><table id="mTable"><thead><tr id="mHead"></tr></thead><tbody id="mBody"></tbody></table></div>
+    <div class="mmore"><button class="btn small" id="mMore" type="button" hidden></button><span class="cs" id="mHidden"></span></div>
+  </section>
 
   <div class="listhead"><h2>논문</h2><span class="cs" id="listCount"></span><button class="btn small" id="btnCsv">목록 내려받기 (CSV)</button></div>
   <div class="list" id="list"></div>
@@ -484,7 +486,7 @@ dialog#prof { overflow-x: hidden; }
   $("foot").innerHTML = `주저자 = 제1저자(공동 제1저자 포함) 또는 교신저자. 저자 목록(byline)에 이름이 있는 논문만 셉니다(컨소시엄·공동연구자 명단 제외).<br>
     규칙으로 확실하게 확인됐거나 관리자가 확인한 논문만 게시합니다${D.meta.pending ? ` (확인 중 ${D.meta.pending}건은 아직 미게시)` : ""}. 정오표·철회·프리프린트는 제외합니다.<br>
     출처: PubMed · OpenAlex · ORCID. 빠진 논문이나 잘못된 내용은 '의견 보내기'나 각 논문의 '오류 신고'로 관리자에게 알려 주세요.<br>
-    교실원 이름을 누르면 프로필(연도별 실적·함께 쓴 교실원·업적표 인쇄)이 열립니다. · 대시보드 v0.2.6`;
+    교실원 이름을 누르면 프로필(연도별 실적·함께 쓴 교실원·업적표 인쇄)이 열립니다. · 대시보드 v0.2.7`;
 
   // ---------- 필터
   function segment(el, items, key) {
@@ -591,7 +593,7 @@ dialog#prof { overflow-x: hidden; }
     const cols = all ? [["n", "합계"], ["main", "주저자"], ["f", "제1저자"], ["c", "교신"], ["co", "공저자"]]
       : st.role === "main" ? [["n", "주저자 합계"], ["f", "제1저자"], ["c", "교신"]] : [["n", `${ROLE_NOUN[st.role]} 합계`]];
     $("mLegend").hidden = !all;
-    $("mNote").textContent = `${basis()} 기준 · 많은 순 · 이름을 누르면 프로필, 행을 누르면 그 교실원만 봅니다`;
+    $("mNote").textContent = `${basis()} 기준 · ${mAll ? "전체 가나다순" : "많은 순 상위 15명"} · 이름을 누르면 프로필, 행을 누르면 그 교실원만 봅니다`;
     $("mHead").innerHTML = `<th class="l">교실원</th><th class="l">병원</th><th class="l">${all ? "주저자 · 공저자" : basis()}</th>${OLD.length ? `<th title="${OLD[0]}–${OLD[OLD.length - 1]}년 합">~${OLD[OLD.length - 1]}</th>` : ""}${RECENT.map(y => `<th>${y}</th>`).join("")}${cols.map(([k, l], i) => `<th class="${i ? "" : "hi"}">${esc(l)}</th>`).join("")}`;
     const agg = {};
     D.papers.forEach(p => { if (!paperOk(p) || !yearOk(p)) return; p.m.forEach(m => {
@@ -602,13 +604,13 @@ dialog#prof { overflow-x: hidden; }
     $("mLeft").hidden = !nLeft; $("mLeft").setAttribute("aria-pressed", mLeftOn ? "true" : "false");
     $("mLeft").textContent = mLeftOn ? `퇴사자 빼기` : `퇴사자 포함 (${nLeft}명)`;
     const rows = D.members.filter(m => mLeftOn || !m.left || m.id === st.member).map(m => { const a = agg[m.id] || { y: {}, n: 0, main: 0, f: 0, c: 0 }; a.co = a.n - a.main; return { m, a }; })
-      .sort((x, y) => y.a.n - x.a.n || y.a.f - x.a.f || x.m.name.localeCompare(y.m.name, "ko"));
+      .sort((x, y) => (mAll ? 0 : y.a.n - x.a.n || y.a.f - x.a.f) || x.m.name.localeCompare(y.m.name, "ko"));   // 줄 세우기는 상위 15명만, 전체는 가나다순
     const max = Math.max(1, ...rows.map(r => r.a.n));
     const cell = v => v || "";   // 0은 비워 둔다
-    const has = rows.filter(r => r.a.n > 0 || r.m.id === st.member), TOP = 20;   // 이 조건에서 논문 없는 교실원은 뺀다
+    const has = rows.filter(r => r.a.n > 0 || r.m.id === st.member), TOP = 15;   // 이 조건에서 논문 없는 교실원은 뺀다
     const shown = mAll ? has : has.filter((r, i) => i < TOP || r.m.id === st.member);
     $("mMore").hidden = has.length <= TOP;
-    $("mMore").textContent = mAll ? `상위 ${TOP}명만 보기` : `나머지 ${has.length - TOP}명 더 보기`;
+    $("mMore").textContent = mAll ? `상위 ${TOP}명만 보기` : `전체 ${has.length}명 보기 (가나다순)`;
     $("mMore").setAttribute("aria-expanded", mAll ? "true" : "false");
     const none = rows.length - has.length;
     $("mHidden").textContent = `${has.length}명${none ? ` · 이 조건에서 논문 없는 ${none}명은 표시하지 않음` : ""}${!mLeftOn && nLeft ? ` · 퇴사자 ${nLeft}명은 빠짐` : ""}`;
@@ -779,8 +781,9 @@ dialog#prof { overflow-x: hidden; }
     });
     if (!series.length) { $("cmp").innerHTML = `<div class="empty">비교할 ${m === "hosp" ? "병원" : "교실원"}을 위에서 고르세요</div>`; return; }
     if (tview.cmp) { const step = xs.length > 14 ? 3 : 1; $("cmp").innerHTML = table(["월", ...series.map(s => s.name)], xs.map((x, i) => [x, ...series.map(s => s.vals[i])]).filter((_, i) => i % step === step - 1 || i === xs.length - 1)); return; }
-    lineChart($("cmp"), xs, series, { endLabels: series.length <= 4, h: 250, tickEvery: xs.length > 14 ? 6 : 1,
-      tickFmt: x => xs.length > 14 ? x.slice(2).replace("-", ".") : `${+x.slice(5)}월`, xFull: x => `${x.slice(0, 4)}년 ${+x.slice(5)}월까지 누적`,
+    const longX = xs.length > 36;   // 3년이 넘으면 1월에만 연도로(눈금 글자가 겹치지 않게)
+    lineChart($("cmp"), xs, series, { endLabels: series.length <= 4, h: 250, tickEvery: longX ? 12 : xs.length > 14 ? 6 : 1,
+      tickFmt: x => longX ? x.slice(0, 4) : xs.length > 14 ? x.slice(2).replace("-", ".") : `${+x.slice(5)}월`, xFull: x => `${x.slice(0, 4)}년 ${+x.slice(5)}월까지 누적`,
       aria: `누적 비교: ${series.map(s => `${s.name} ${s.vals[s.vals.length - 1]}편`).join(", ")}` });
   }
   $("cmpCtl").addEventListener("click", e => {
