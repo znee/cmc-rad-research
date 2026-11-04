@@ -347,7 +347,7 @@ dialog#prof { overflow-x: hidden; }
   <div class="kpis" id="kpis"></div>
 
   <section class="card full">
-    <div class="chead"><h2>교실원별</h2><span class="cs" id="mNote"></span></div>
+    <div class="chead"><h2>교실원별</h2><span class="cs" id="mNote"></span><button class="tv" id="mLeft" type="button" aria-pressed="false" hidden>퇴사자 포함</button></div>
     <div class="legend" id="mLegend"><span><i style="background:var(--main)"></i>주저자 (제1·교신)</span><span><i style="background:var(--co)"></i>공저자</span></div>
     <div class="tablebox"><table id="mTable"><thead><tr id="mHead"></tr></thead><tbody id="mBody"></tbody></table></div>
     <div class="mmore"><button class="btn small" id="mMore" type="button" hidden></button><span class="cs" id="mHidden"></span></div>
@@ -438,8 +438,11 @@ dialog#prof { overflow-x: hidden; }
     <label for="dlgMember">해당 교실원</label>
     <select id="dlgMember"></select>
     <div id="refBox">
-      <label for="dlgRef">논문 (DOI · PMID · 제목)</label>
-      <input type="text" id="dlgRef" placeholder="예: 10.1148/radiol.2025xxxxx 또는 PMID 40000000">
+      <label for="dlgRef">논문 (PubMed 링크 · DOI · 제목)</label>
+      <input type="text" id="dlgRef" placeholder="예: https://pubmed.ncbi.nlm.nih.gov/40000000 또는 10.1148/radiol.2025xxxxx">
+      <label for="dlgOrcid">본인 ORCID (선택)</label>
+      <input type="text" id="dlgOrcid" placeholder="0000-0000-0000-0000" autocomplete="off">
+      <div class="priv">권장: PubMed 링크나 DOI, 또는 ORCID를 적어 주시면 더 빠르고 정확하게 반영됩니다(ORCID는 앞으로의 논문 찾기에도 쓰입니다). Google Scholar 링크는 공개 API가 없어 지원하지 않습니다.</div>
     </div>
     <label for="dlgDetail">내용</label>
     <textarea id="dlgDetail" placeholder="무엇을 어떻게 고쳐야 하는지 적어 주세요"></textarea>
@@ -481,7 +484,7 @@ dialog#prof { overflow-x: hidden; }
   $("foot").innerHTML = `주저자 = 제1저자(공동 제1저자 포함) 또는 교신저자. 저자 목록(byline)에 이름이 있는 논문만 셉니다(컨소시엄·공동연구자 명단 제외).<br>
     규칙으로 확실하게 확인됐거나 관리자가 확인한 논문만 게시합니다${D.meta.pending ? ` (확인 중 ${D.meta.pending}건은 아직 미게시)` : ""}. 정오표·철회·프리프린트는 제외합니다.<br>
     출처: PubMed · OpenAlex · ORCID. 빠진 논문이나 잘못된 내용은 '의견 보내기'나 각 논문의 '오류 신고'로 관리자에게 알려 주세요.<br>
-    교실원 이름을 누르면 프로필(연도별 실적·함께 쓴 교실원·업적표 인쇄)이 열립니다. · 대시보드 v0.2.5`;
+    교실원 이름을 누르면 프로필(연도별 실적·함께 쓴 교실원·업적표 인쇄)이 열립니다. · 대시보드 v0.2.6`;
 
   // ---------- 필터
   function segment(el, items, key) {
@@ -579,6 +582,8 @@ dialog#prof { overflow-x: hidden; }
   // ---------- 교실원 표 (역할 기준에 따라 열이 바뀜)
   let mAll = false;
   $("mMore").addEventListener("click", () => { mAll = !mAll; renderMembers(); if (!mAll) $("mTable").scrollIntoView({ block: "nearest" }); });
+  let mLeftOn = false;   // 교실원별 표: 퇴사자는 기본으로 빼고, 버튼으로 넣는다
+  $("mLeft").addEventListener("click", () => { mLeftOn = !mLeftOn; renderMembers(); });
   function renderMembers() {
     const all = st.role === "";
     const cols = all ? [["n", "합계"], ["main", "주저자"], ["f", "제1저자"], ["c", "교신"], ["co", "공저자"]]
@@ -591,7 +596,10 @@ dialog#prof { overflow-x: hidden; }
       if ((st.hosp && m.h !== st.hosp) || !roleOk(m.role)) return;   // 교실원 선택은 강조만
       const a = agg[m.id] ||= { y: {}, n: 0, main: 0, f: 0, c: 0 };
       a.y[p.y] = (a.y[p.y] || 0) + 1; a.n++; if (isMain(m.role)) a.main++; if (isFirst(m.role)) a.f++; if (isCorr(m.role)) a.c++; }); });
-    const rows = D.members.map(m => { const a = agg[m.id] || { y: {}, n: 0, main: 0, f: 0, c: 0 }; a.co = a.n - a.main; return { m, a }; })
+    const nLeft = D.members.filter(m => m.left && m.id !== st.member).length;
+    $("mLeft").hidden = !nLeft; $("mLeft").setAttribute("aria-pressed", mLeftOn ? "true" : "false");
+    $("mLeft").textContent = mLeftOn ? `퇴사자 빼기` : `퇴사자 포함 (${nLeft}명)`;
+    const rows = D.members.filter(m => mLeftOn || !m.left || m.id === st.member).map(m => { const a = agg[m.id] || { y: {}, n: 0, main: 0, f: 0, c: 0 }; a.co = a.n - a.main; return { m, a }; })
       .sort((x, y) => y.a.n - x.a.n || y.a.f - x.a.f || x.m.name.localeCompare(y.m.name, "ko"));
     const max = Math.max(1, ...rows.map(r => r.a.n));
     const cell = v => v || "";   // 0은 비워 둔다
@@ -601,7 +609,7 @@ dialog#prof { overflow-x: hidden; }
     $("mMore").textContent = mAll ? `상위 ${TOP}명만 보기` : `나머지 ${has.length - TOP}명 더 보기`;
     $("mMore").setAttribute("aria-expanded", mAll ? "true" : "false");
     const none = rows.length - has.length;
-    $("mHidden").textContent = `${has.length}명${none ? ` · 이 조건에서 논문 없는 ${none}명은 표시하지 않음` : ""}`;
+    $("mHidden").textContent = `${has.length}명${none ? ` · 이 조건에서 논문 없는 ${none}명은 표시하지 않음` : ""}${!mLeftOn && nLeft ? ` · 퇴사자 ${nLeft}명은 빠짐` : ""}`;
     $("mBody").innerHTML = shown.map(({ m, a }) => {
       const w = a.n / max * 100;
       const tipTxt = all ? `${a.n}편\n${m.name}\n@main|주저자|${a.main}\n@co|공저자|${a.co}` : `${a.n}편\n${m.name} · ${basis()}`;
@@ -1221,7 +1229,7 @@ dialog#prof { overflow-x: hidden; }
     const opts = p ? p.m.map(m => m.id) : D.members.map(m => m.id);
     $("dlgMember").innerHTML = (p ? "" : `<option value="">선택 (해당 없으면 비워 두세요)</option>`) + opts.map(id => `<option value="${esc(id)}">${esc(memberById[id]?.name || id)}</option>`).join("");
     if (!p && st.member) $("dlgMember").value = st.member;
-    $("dlgDetail").value = ""; $("dlgRef").value = "";
+    $("dlgDetail").value = ""; $("dlgRef").value = ""; $("dlgOrcid").value = "";
     $("dlgNote").hidden = canSend(); $("dlgSend").disabled = !canSend();
     $("dlg").showModal();
   }
@@ -1232,10 +1240,11 @@ dialog#prof { overflow-x: hidden; }
     if (e.submitter?.value !== "send") return;
     e.preventDefault();
     const p = target, kind = document.querySelector("input[name=kind]:checked")?.value || "기타 의견";
-    if (!p && kind === "누락된 논문" && !$("dlgRef").value.trim()) { toast("빠진 논문의 DOI·PMID·제목을 적어 주세요"); $("dlgRef").focus(); return; }
+    if (!p && kind === "누락된 논문" && !$("dlgRef").value.trim()) { toast("빠진 논문의 PubMed 링크·DOI·제목을 적어 주세요"); $("dlgRef").focus(); return; }
     if (!$("dlgDetail").value.trim() && !(p || $("dlgRef").value.trim())) { toast("내용을 적어 주세요"); $("dlgDetail").focus(); return; }
     const body = { kind, member: $("dlgMember").value, key: p ? p.k : "", title: p ? p.t : $("dlgRef").value,
-      pmid: p ? p.pmid : "", doi: p ? p.doi : "", detail: $("dlgDetail").value, reporter: $("dlgWho").value, contact: $("dlgContact").value };
+      pmid: p ? p.pmid : "", doi: p ? p.doi : "", detail: $("dlgDetail").value, reporter: $("dlgWho").value, contact: $("dlgContact").value,
+      orcid: p ? "" : ($("dlgOrcid").value.match(/\d{4}-\d{4}-\d{4}-\d{3}[\dX]/i)?.[0] || $("dlgOrcid").value.trim()).toUpperCase() };
     $("dlgSend").disabled = true;
     try {
       if (server) {   // 교실 내부망: 이 Mac의 검토 화면 '의견' 탭으로
@@ -1245,7 +1254,7 @@ dialog#prof { overflow-x: hidden; }
       } else {        // 게시본: 관리자 메일로 (한글 항목 이름이 깨지지 않게 JSON으로 보낸다)
         const nm = id => memberById[id]?.name || id, ref = body.doi ? `https://doi.org/${body.doi}` : body.pmid ? `https://pubmed.ncbi.nlm.nih.gov/${body.pmid}/` : "";
         const mail = { access_key: FEEDBACK_KEY, subject: `[연구업적 의견] ${kind}${body.member ? " · " + nm(body.member) : ""}`, from_name: body.reporter || "연구업적 대시보드",
-          "종류": kind, "교실원": body.member ? (nm(body.member) === body.member ? body.member : `${nm(body.member)} (${body.member})`) : "", [p ? "논문" : "논문 (DOI·PMID·제목)"]: body.title, "링크": ref,
+          "종류": kind, "교실원": body.member ? (nm(body.member) === body.member ? body.member : `${nm(body.member)} (${body.member})`) : "", [p ? "논문" : "논문 (DOI·PMID·제목)"]: body.title, "링크": ref, "ORCID": /^\d{4}-\d{4}-\d{4}-\d{3}[\dX]$/.test(body.orcid) ? `https://orcid.org/${body.orcid}` : body.orcid,
           "내용": body.detail, "보낸 사람": body.reporter, "연락처": body.contact, "논문 key": body.key };
         if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(body.contact.trim())) mail.replyto = body.contact.trim();
         Object.keys(mail).forEach(k => { if (mail[k] === "" || mail[k] == null) delete mail[k]; });
