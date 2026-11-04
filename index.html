@@ -12,7 +12,7 @@
   --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink2: #52514e; --muted: #898781;
   --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10); --wash: #f0efec;
   --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100;
-  --on-s1: #fff; --on-s2: #fff; --on-s3: #fff; --on-s4: #0b0b0b;
+  --on-s1: #fff; --on-s2: #fff; --on-s3: #fff; --on-s4: #0b0b0b; --on-other: #0b0b0b;
   --main: #1c5cab; --co: #86b6ef; --other: #c3c2b7;
   --accent: #2a78d6; --accent-soft: #e6effa; --mark: #fff3c4; --good-text: #006300; --critical: #d03b3b;
   --y0: #86b6ef; --y1: #3987e5; --y2: #1c5cab;
@@ -24,7 +24,7 @@
     --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink2: #c3c2b7; --muted: #898781;
     --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10); --wash: #232322;
     --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
-    --on-s1: #fff; --on-s2: #fff; --on-s3: #fff; --on-s4: #fff;
+    --on-s1: #fff; --on-s2: #fff; --on-s3: #fff; --on-s4: #fff; --on-other: #fff;
     --main: #9ec5f4; --co: #256abf; --other: #5f5e59;
     --accent: #3987e5; --accent-soft: #1d2a3a; --mark: #4a3f17; --good-text: #0ca30c; --critical: #e66767;
     --y0: #184f95; --y1: #3987e5; --y2: #9ec5f4;
@@ -36,7 +36,7 @@
   --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink2: #c3c2b7; --muted: #898781;
   --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10); --wash: #232322;
   --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
-  --on-s1: #fff; --on-s2: #fff; --on-s3: #fff; --on-s4: #fff;
+  --on-s1: #fff; --on-s2: #fff; --on-s3: #fff; --on-s4: #fff; --on-other: #fff;
   --main: #9ec5f4; --co: #256abf; --other: #5f5e59;
   --accent: #3987e5; --accent-soft: #1d2a3a; --mark: #4a3f17; --good-text: #0ca30c; --critical: #e66767;
   --y0: #184f95; --y1: #3987e5; --y2: #9ec5f4;
@@ -338,7 +338,7 @@ dialog#prof { overflow-x: hidden; }
       <select id="fHosp" aria-label="병원"><option value="">병원 전체</option></select>
       <select id="fKind" aria-label="유형">
         <option value="">유형 전체</option>
-        <option>학술지</option><option>학회논문</option><option>초록</option><option>도서</option>
+        <option>학술지</option><option>학회논문</option><option>초록</option><option>도서</option><option value="기타">기타(사설·편지)</option>
       </select>
       <input id="fText" type="search" placeholder="제목·저널 검색" aria-label="검색">
     </div>
@@ -465,7 +465,7 @@ dialog#prof { overflow-x: hidden; }
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const years = []; for (let y = D.meta.years[0]; y <= D.meta.years[1]; y++) years.push(y);
   const memberById = Object.fromEntries(D.members.map(m => [m.id, m]));
-  const KINDS = ["학술지", "학회논문", "초록", "도서"], KIND_VAR = { "학술지": "s1", "학회논문": "s2", "초록": "s3", "도서": "s4" };
+  const KINDS = ["학술지", "학회논문", "초록", "도서", "기타"], KIND_VAR = { "학술지": "s1", "학회논문": "s2", "초록": "s3", "도서": "s4", "기타": "other" };
   // 역할 기준 — 기본은 주저자(제1·교신)
   const ROLES = [["main", "주저자 (제1·교신)"], ["first", "제1저자"], ["corr", "교신저자"], ["co", "공저자"], ["", "전체"]];
   const ROLE_NOUN = { main: "주저자", first: "제1저자", corr: "교신저자", co: "공저자", "": "전체" };
@@ -481,7 +481,7 @@ dialog#prof { overflow-x: hidden; }
   $("foot").innerHTML = `주저자 = 제1저자(공동 제1저자 포함) 또는 교신저자. 저자 목록(byline)에 이름이 있는 논문만 셉니다(컨소시엄·공동연구자 명단 제외).<br>
     규칙으로 확실하게 확인됐거나 관리자가 확인한 논문만 게시합니다${D.meta.pending ? ` (확인 중 ${D.meta.pending}건은 아직 미게시)` : ""}. 정오표·철회·프리프린트는 제외합니다.<br>
     출처: PubMed · OpenAlex · ORCID. 빠진 논문이나 잘못된 내용은 '의견 보내기'나 각 논문의 '오류 신고'로 관리자에게 알려 주세요.<br>
-    교실원 이름을 누르면 프로필(연도별 실적·함께 쓴 교실원·업적표 인쇄)이 열립니다. · 대시보드 v0.2.4`;
+    교실원 이름을 누르면 프로필(연도별 실적·함께 쓴 교실원·업적표 인쇄)이 열립니다. · 대시보드 v0.2.5`;
 
   // ---------- 필터
   function segment(el, items, key) {
