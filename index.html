@@ -346,7 +346,7 @@ dialog#prof { overflow-x: hidden; }
 
   <div class="kpis" id="kpis"></div>
 
-  <!-- 순서: 전체 현황 → 공동연구 → 최근 논문·학술지 → 교실원별 표(상위 15명 · 전체는 가나다순) → 논문 목록 -->
+  <!-- 순서: 전체 현황 → 공동연구 → 최근 논문·학술지 → 명예의 전당(상위 15명 · 전체 명단은 관리자만, 가나다순) → 논문 목록 -->
   <div class="grid2">
     <section class="card">
       <div class="chead"><h2>연도별 논문</h2><span class="cs" id="yearNote"></span><button class="tv" data-for="year">표로 보기</button></div>
@@ -408,7 +408,7 @@ dialog#prof { overflow-x: hidden; }
   </div>
 
   <section class="card full">
-    <div class="chead"><h2>교실원별</h2><span class="cs" id="mNote"></span><button class="tv" id="mLeft" type="button" aria-pressed="false" hidden>퇴사자 포함</button></div>
+    <div class="chead"><h2 id="mTitle">명예의 전당</h2><span class="cs" id="mNote"></span><button class="tv" id="mLeft" type="button" aria-pressed="false" hidden>퇴사자 포함</button></div>
     <div class="legend" id="mLegend"><span><i style="background:var(--main)"></i>주저자 (제1·교신)</span><span><i style="background:var(--co)"></i>공저자</span></div>
     <div class="tablebox"><table id="mTable"><thead><tr id="mHead"></tr></thead><tbody id="mBody"></tbody></table></div>
     <div class="mmore"><button class="btn small" id="mMore" type="button" hidden></button><span class="cs" id="mHidden"></span></div>
@@ -486,7 +486,7 @@ dialog#prof { overflow-x: hidden; }
   $("foot").innerHTML = `주저자 = 제1저자(공동 제1저자 포함) 또는 교신저자. 저자 목록(byline)에 이름이 있는 논문만 셉니다(컨소시엄·공동연구자 명단 제외).<br>
     규칙으로 확실하게 확인됐거나 관리자가 확인한 논문만 게시합니다${D.meta.pending ? ` (확인 중 ${D.meta.pending}건은 아직 미게시)` : ""}. 정오표·철회·프리프린트는 제외합니다.<br>
     출처: PubMed · OpenAlex · ORCID. 빠진 논문이나 잘못된 내용은 '의견 보내기'나 각 논문의 '오류 신고'로 관리자에게 알려 주세요.<br>
-    교실원 이름을 누르면 프로필(연도별 실적·함께 쓴 교실원·업적표 인쇄)이 열립니다. · 대시보드 v0.2.8`;
+    교실원 이름을 누르면 프로필(연도별 실적·함께 쓴 교실원·업적표 인쇄)이 열립니다. · 대시보드 v0.2.9`;
 
   // ---------- 필터
   function segment(el, items, key) {
@@ -595,6 +595,7 @@ dialog#prof { overflow-x: hidden; }
     const cols = all ? [["n", "합계"], ["main", "주저자"], ["f", "제1저자"], ["c", "교신"], ["co", "공저자"]]
       : st.role === "main" ? [["n", "주저자 합계"], ["f", "제1저자"], ["c", "교신"]] : [["n", `${ROLE_NOUN[st.role]} 합계`]];
     $("mLegend").hidden = !all;
+    $("mTitle").textContent = mAll ? "교실원 전체 (관리자)" : "명예의 전당";
     $("mNote").textContent = `${basis()} 기준 · ${mAll ? "전체 가나다순" : "많은 순 상위 15명"} · 이름을 누르면 프로필, 행을 누르면 그 교실원만 봅니다`;
     $("mHead").innerHTML = `<th class="l">교실원</th><th class="l">병원</th><th class="l">${all ? "주저자 · 공저자" : basis()}</th>${OLD.length ? `<th title="${OLD[0]}–${OLD[OLD.length - 1]}년 합">~${OLD[OLD.length - 1]}</th>` : ""}${RECENT.map(y => `<th>${y}</th>`).join("")}${cols.map(([k, l], i) => `<th class="${i ? "" : "hi"}">${esc(l)}</th>`).join("")}`;
     const agg = {};
