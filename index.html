@@ -486,7 +486,7 @@ dialog#prof { overflow-x: hidden; }
   $("foot").innerHTML = `주저자 = 제1저자(공동 제1저자 포함) 또는 교신저자. 저자 목록(byline)에 이름이 있는 논문만 셉니다(컨소시엄·공동연구자 명단 제외).<br>
     규칙으로 확실하게 확인됐거나 관리자가 확인한 논문만 게시합니다${D.meta.pending ? ` (확인 중 ${D.meta.pending}건은 아직 미게시)` : ""}. 정오표·철회·프리프린트는 제외합니다.<br>
     출처: PubMed · OpenAlex · ORCID. 빠진 논문이나 잘못된 내용은 '의견 보내기'나 각 논문의 '오류 신고'로 관리자에게 알려 주세요.<br>
-    교실원 이름을 누르면 프로필(연도별 실적·함께 쓴 교실원·업적표 인쇄)이 열립니다. · 대시보드 v0.2.7`;
+    교실원 이름을 누르면 프로필(연도별 실적·함께 쓴 교실원·업적표 인쇄)이 열립니다. · 대시보드 v0.2.8`;
 
   // ---------- 필터
   function segment(el, items, key) {
@@ -583,7 +583,9 @@ dialog#prof { overflow-x: hidden; }
 
   // ---------- 교실원 표 (역할 기준에 따라 열이 바뀜)
   let mAll = false;
-  $("mMore").addEventListener("click", () => { mAll = !mAll; renderMembers(); if (!mAll) $("mTable").scrollIntoView({ block: "nearest" }); });
+  // 전체 명단(가나다순)은 관리자만: 관리자 Mac에서 localhost로 열었을 때만 버튼이 보인다(공개본·내부망 동료에게는 상위 15명만)
+  const ADMIN = ["localhost", "127.0.0.1", "[::1]"].includes(location.hostname);
+  $("mMore").addEventListener("click", () => { if (!ADMIN) return; mAll = !mAll; renderMembers(); if (!mAll) $("mTable").scrollIntoView({ block: "nearest" }); });
   let mLeftOn = false;   // 교실원별 표: 퇴사자는 기본으로 빼고, 버튼으로 넣는다
   $("mLeft").addEventListener("click", () => { mLeftOn = !mLeftOn; renderMembers(); });
   // 교실원별 표의 연도 칸: 기간이 길어져도 넓어지지 않게 최근 7년만 따로, 그 앞은 한 칸(~연도)으로 합친다
@@ -609,11 +611,12 @@ dialog#prof { overflow-x: hidden; }
     const cell = v => v || "";   // 0은 비워 둔다
     const has = rows.filter(r => r.a.n > 0 || r.m.id === st.member), TOP = 15;   // 이 조건에서 논문 없는 교실원은 뺀다
     const shown = mAll ? has : has.filter((r, i) => i < TOP || r.m.id === st.member);
-    $("mMore").hidden = has.length <= TOP;
-    $("mMore").textContent = mAll ? `상위 ${TOP}명만 보기` : `전체 ${has.length}명 보기 (가나다순)`;
+    $("mMore").hidden = !ADMIN || has.length <= TOP;
+    $("mMore").textContent = mAll ? `상위 ${TOP}명만 보기` : `전체 ${has.length}명 보기 (가나다순 · 관리자)`;
     $("mMore").setAttribute("aria-expanded", mAll ? "true" : "false");
     const none = rows.length - has.length;
-    $("mHidden").textContent = `${has.length}명${none ? ` · 이 조건에서 논문 없는 ${none}명은 표시하지 않음` : ""}${!mLeftOn && nLeft ? ` · 퇴사자 ${nLeft}명은 빠짐` : ""}`;
+    $("mHidden").textContent = (ADMIN ? `${has.length}명${none ? ` · 이 조건에서 논문 없는 ${none}명은 표시하지 않음` : ""}` : `상위 ${Math.min(TOP, has.length)}명 · 다른 교실원은 위 '교실원 전체'에서 고르면 봅니다`)
+      + `${!mLeftOn && nLeft ? ` · 퇴사자 ${nLeft}명은 빠짐` : ""}`;
     $("mBody").innerHTML = shown.map(({ m, a }) => {
       const w = a.n / max * 100;
       const tipTxt = all ? `${a.n}편\n${m.name}\n@main|주저자|${a.main}\n@co|공저자|${a.co}` : `${a.n}편\n${m.name} · ${basis()}`;
